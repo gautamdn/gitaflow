@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "GitaFlow",
+    "slug": "gitaflow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "gitaflow",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "com.gitaflow.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.gitaflow.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FF6F00"
+      }
+    },
+    "plugins": ["expo-router"]
+  }
+}
