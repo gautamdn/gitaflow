@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "Srimad Bhagavad Gita",
+    "total_chapters": 18,
+    "total_shlokas": 700,
+    "total_readings": 234,
+    "verses_per_day": 3,
+    "source": "https://vedicscriptures.github.io/",
+    "license": "MIT",
+    "fetched_at": "2026-02-05T00:00:00.000Z"
+  },
+  "chapters": [
+    {
+      "chapter_number": 1,
+      "verses_count": 47,
+      "name_sanskrit": "अर्जुनविषादयोग",
+      "name_transliteration": null,
+      "name_english": null,
+      "meaning_en": null,
+      "meaning_hi": null,
+      "summary_en": null,
+      "summary_hi": null
+    },
+    {
+      "chapter_number": 2,
+      "verses_count": 72,
+      "name_sanskrit": "सांख्ययोग",
+      "name_transliteration": "Sānkhya Yog",
+      "name_english": "Sankhya Yoga",
+      "meaning_en": "Yoga through Knowledge",
+      "meaning_hi": "ज्ञान का योग",
+      "summary_en": "The second chapter of the Bhagavad Gita is Sankhya Yoga. This is the most important chapter of the Bhagavad Gita...",
+      "summary_hi": "भगवद गीता का दूसरा अध्याय सांख्य योग है..."
+    }
+  ],
+  "shlokas": [
+    {
+      "id": "BG1.1",
+      "chapter": 1,
+      "verse": 1,
+      "sanskrit": "धृतराष्ट्र उवाच |\nधर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः |\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ||१-१||",
+      "transliteration": "dhṛtarāṣṭra uvāca .\ndharmakṣetre kurukṣetre samavetā yuyutsavaḥ .\nmāmakāḥ pāṇḍavāścaiva kimakurvata sañjaya ||1-1||",
+      "translations": {
+        "sivananda": "Dhritarashtra said: What did my people and the sons of Pandu do when they had assembled together eager for battle on the holy plain of Kurukshetra, O Sanjaya.",
+        "purohit": "The King Dhritarashtra asked: \"O Sanjaya! What happened on the sacred battlefield of Kurukshetra, when my people gathered against the Pandavas?\"",
+        "gambirananda": "Dhrtarastra said: O Sanjaya, what did my sons (and others) and Pandu's sons (and others) actually do when, eager for battle, they assembled on the sacred field, the Kuruksetra (Field of the Kurus)?",
+        "adidevananda": "Dhrtarastra said: On the holy field of Kuruksetra, gathered together eager for battle, what did my people and the Pandavas do, O Sanjaya?"
+      },
+      "hindi": {
+        "tejomayananda": "।।1.1।।धृतराष्ट्र ने कहा -- हे संजय ! धर्मभूमि कुरुक्षेत्र में एकत्र हुए युद्ध के इच्छुक मेरे और पाण्डु के पुत्रों ने क्या किया?",
+        "ramsukhdas": "।।1.1।। धृतराष्ट्र बोले - हे संजय! धर्मभूमि कुरुक्षेत्र में युद्ध की इच्छा से इकट्ठे हुए मेरे और पाण्डु के पुत्रों ने भी क्या किया?"
+      },
+      "commentary_en": "1.1 धर्मक्षेत्रे on the holy plain, कुरुक्षेत्रे in Kurukshetra, समवेताः assembled together, युयुत्सवः desirous to fight...",
+      "commentary_hi": "1।।व्याख्या--'धर्मक्षेत्रे' 'कुरुक्षेत्रे' --कुरुक्षेत्रमें देवताओंने यज्ञ किया था..."
+    },
+    {
+      "id": "BG2.47",
+      "chapter": 2,
+      "verse": 47,
+      "sanskrit": "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन |\nमा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ||२-४७||",
+      "transliteration": "karmaṇyevādhikāraste mā phaleṣu kadācana .\nmā karmaphalaheturbhūrmā te saṅgo'stvakarmaṇi ||2-47||",
+      "translations": {
+        "sivananda": "Thy right is to work only, but never with its fruits; let not the fruits of actions be thy motive, nor let thy attachment be to inaction.",
+        "purohit": "But thou hast only the right to work, but none to the fruit thereof. Let not then the fruit of thy action be thy motive; nor yet be thou enamored of inaction.",
+        "gambirananda": "Your right is for action alone, never for the results. Do not become the agent of the results of action. May you not have any inclination for inaction.",
+        "adidevananda": "Your right is to work only and never to its fruit. Do not let the fruit of action be your motive, nor let your attachment be to inaction."
+      },
+      "hindi": {
+        "tejomayananda": "।।2.47।।कर्म करने में ही तेरा अधिकार है, फल में कभी नहीं...",
+        "ramsukhdas": "।।2.47।। कर्म करने में ही तेरा अधिकार है, उसके फलों में कभी नहीं..."
+      },
+      "commentary_en": "2.47 कर्मणि in action, एव only, अधिकारः right, ते thy...",
+      "commentary_hi": "2।।व्याख्या-- 'कर्मण्येवाधिकारस्ते'..."
+    }
+  ],
+  "daily_readings": [
+    {
+      "day": 1,
+      "chapter": 1,
+      "shloka_ids": ["BG1.1", "BG1.2", "BG1.3"],
+      "shloka_range": "BG1.1 - BG1.3"
+    },
+    {
+      "day": 2,
+      "chapter": 1,
+      "shloka_ids": ["BG1.4", "BG1.5", "BG1.6"],
+      "shloka_range": "BG1.4 - BG1.6"
+    }
+  ]
+}
