@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { COLORS, SPACING, FONT_SIZES, TOUCH_TARGET } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
@@ -29,15 +29,20 @@ function ShlokaCard({ shloka }: { shloka: Shloka }) {
 
 export default function ReadingScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ day?: string }>();
   const { current_day, completed_readings, markDayComplete } = useProgressStore();
 
-  const reading = getDailyReading(current_day);
+  const browseDay = params.day ? Number(params.day) : undefined;
+  const displayDay = browseDay ?? current_day;
+  const isBrowseMode = browseDay !== undefined;
+
+  const reading = getDailyReading(displayDay);
   const chapter = reading ? getChapter(reading.chapter) : undefined;
   const shlokas = reading ? getShlokasByIds(reading.shloka_ids) : [];
-  const isComplete = completed_readings.includes(current_day);
+  const isComplete = completed_readings.includes(displayDay);
 
   const handleMarkComplete = () => {
-    markDayComplete(current_day);
+    markDayComplete(displayDay);
     router.back();
   };
 
@@ -55,7 +60,7 @@ export default function ReadingScreen() {
           <Text style={styles.backArrow}>{'\u2190'}</Text>
         </Pressable>
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>Day {current_day}</Text>
+          <Text style={styles.headerTitle}>Day {displayDay}</Text>
           {chapter && (
             <Text style={styles.headerSubtitle} numberOfLines={1}>
               Chapter {chapter.chapter_number}:{' '}
@@ -78,30 +83,32 @@ export default function ReadingScreen() {
       </ScrollView>
 
       {/* Fixed footer */}
-      <View style={styles.footer}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.completeButton,
-            isComplete && styles.completeButtonDone,
-            pressed && !isComplete && styles.completeButtonPressed,
-          ]}
-          onPress={handleMarkComplete}
-          disabled={isComplete}
-          accessibilityRole="button"
-          accessibilityLabel={
-            isComplete ? 'Reading completed' : 'Mark reading as complete'
-          }
-        >
-          <Text
-            style={[
-              styles.completeButtonText,
-              isComplete && styles.completeButtonTextDone,
+      {(!isBrowseMode || !isComplete) && (
+        <View style={styles.footer}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.completeButton,
+              isComplete && styles.completeButtonDone,
+              pressed && !isComplete && styles.completeButtonPressed,
             ]}
+            onPress={handleMarkComplete}
+            disabled={isComplete}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isComplete ? 'Reading completed' : 'Mark reading as complete'
+            }
           >
-            {isComplete ? 'Completed \u2713' : 'Mark Complete'}
-          </Text>
-        </Pressable>
-      </View>
+            <Text
+              style={[
+                styles.completeButtonText,
+                isComplete && styles.completeButtonTextDone,
+              ]}
+            >
+              {isComplete ? 'Completed \u2713' : 'Mark Complete'}
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

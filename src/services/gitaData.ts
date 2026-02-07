@@ -29,3 +29,11 @@ export function getChapter(chapterNumber: number): Chapter | undefined {
 export function getTotalReadings(): number {
   return rawData.metadata.total_readings;
 }
+
+export function getAllChapters(): Chapter[] {
+  return rawData.chapters;
+}
+
+export function getReadingsByChapter(chapterNumber: number): DailyReading[] {
+  return rawData.daily_readings.filter((r) => r.chapter === chapterNumber);
+}

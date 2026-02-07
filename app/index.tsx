@@ -89,6 +89,19 @@ export default function HomeScreen() {
             {completed_readings.length} of {totalReadings} readings completed
           </Text>
         </View>
+
+        {/* Browse link */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.browseButton,
+            pressed && styles.browseButtonPressed,
+          ]}
+          onPress={() => router.push('/browse')}
+          accessibilityRole="button"
+          accessibilityLabel="Browse all chapters"
+        >
+          <Text style={styles.browseButtonText}>Browse All Chapters</Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -197,5 +210,23 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: FONT_SIZES.caption,
     color: COLORS.textMuted,
+  },
+  browseButton: {
+    borderWidth: 2,
+    borderColor: COLORS.saffron,
+    borderRadius: 16,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: TOUCH_TARGET.minHeight,
+    marginTop: SPACING.lg,
+  },
+  browseButtonPressed: {
+    backgroundColor: COLORS.saffronPale,
+  },
+  browseButtonText: {
+    color: COLORS.saffron,
+    fontSize: FONT_SIZES.bodyLarge,
+    fontWeight: '600',
   },
 });
