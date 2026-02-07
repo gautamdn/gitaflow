@@ -2,35 +2,44 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, SPACING, FONT_SIZES, TOUCH_TARGET } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
+import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getAllChapters, getReadingsByChapter } from '../src/services/gitaData';
 import type { Chapter, DailyReading } from '../src/types/gita';
+import type { ThemeColors } from '../src/constants/theme';
 
 function ReadingRow({
   reading,
   isComplete,
   onPress,
+  colors,
 }: {
   reading: DailyReading;
   isComplete: boolean;
   onPress: () => void;
+  colors: ThemeColors;
 }) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.readingRow,
-        pressed && styles.readingRowPressed,
+        { borderBottomColor: colors.saffronPale },
+        pressed && { backgroundColor: colors.saffronPale },
       ]}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Day ${reading.day}, verses ${reading.shloka_range}`}
     >
       <View style={styles.readingRowLeft}>
-        <Text style={styles.readingDay}>Day {reading.day}</Text>
-        <Text style={styles.readingRange}>{reading.shloka_range}</Text>
+        <Text style={[styles.readingDay, { color: colors.textPrimary }]}>
+          Day {reading.day}
+        </Text>
+        <Text style={[styles.readingRange, { color: colors.textMuted }]}>
+          {reading.shloka_range}
+        </Text>
       </View>
-      <Text style={styles.readingCheck}>
+      <Text style={[styles.readingCheck, { color: colors.saffron }]}>
         {isComplete ? '\u2713' : '\u203A'}
       </Text>
     </Pressable>
@@ -44,6 +53,7 @@ function ChapterCard({
   readings,
   completedReadings,
   onReadingPress,
+  colors,
 }: {
   chapter: Chapter;
   completedCount: number;
@@ -51,46 +61,54 @@ function ChapterCard({
   readings: DailyReading[];
   completedReadings: number[];
   onReadingPress: (day: number) => void;
+  colors: ThemeColors;
 }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View style={styles.chapterCard}>
+    <View style={[styles.chapterCard, { backgroundColor: colors.surface }]}>
       <Pressable
         style={({ pressed }) => [
           styles.chapterHeader,
-          pressed && styles.chapterHeaderPressed,
+          pressed && { backgroundColor: colors.saffronPale },
         ]}
         onPress={() => setExpanded(!expanded)}
         accessibilityRole="button"
         accessibilityLabel={`Chapter ${chapter.chapter_number}, ${chapter.name_english}`}
       >
-        <View style={styles.chapterNumberBadge}>
-          <Text style={styles.chapterNumberText}>{chapter.chapter_number}</Text>
+        <View style={[styles.chapterNumberBadge, { backgroundColor: colors.saffronPale }]}>
+          <Text style={[styles.chapterNumberText, { color: colors.saffron }]}>
+            {chapter.chapter_number}
+          </Text>
         </View>
         <View style={styles.chapterInfo}>
-          <Text style={styles.chapterName}>
+          <Text style={[styles.chapterName, { color: colors.textPrimary }]}>
             {chapter.name_english ?? chapter.name_sanskrit}
           </Text>
           {chapter.meaning_en && (
-            <Text style={styles.chapterMeaning}>{chapter.meaning_en}</Text>
+            <Text style={[styles.chapterMeaning, { color: colors.textSecondary }]}>
+              {chapter.meaning_en}
+            </Text>
           )}
-          <Text style={styles.chapterMeta}>
+          <Text style={[styles.chapterMeta, { color: colors.textMuted }]}>
             {chapter.verses_count} verses{' '}
             {completedCount > 0 && `\u00B7 ${completedCount}/${totalReadings} done`}
           </Text>
         </View>
-        <Text style={styles.expandArrow}>{expanded ? '\u25B2' : '\u25BC'}</Text>
+        <Text style={[styles.expandArrow, { color: colors.textMuted }]}>
+          {expanded ? '\u25B2' : '\u25BC'}
+        </Text>
       </Pressable>
 
       {expanded && (
-        <View style={styles.readingsList}>
+        <View style={[styles.readingsList, { borderTopColor: colors.saffronPale }]}>
           {readings.map((reading) => (
             <ReadingRow
               key={reading.day}
               reading={reading}
               isComplete={completedReadings.includes(reading.day)}
               onPress={() => onReadingPress(reading.day)}
+              colors={colors}
             />
           ))}
         </View>
@@ -102,6 +120,8 @@ function ChapterCard({
 export default function BrowseScreen() {
   const router = useRouter();
   const { completed_readings } = useProgressStore();
+  const { darkMode } = useSettingsStore();
+  const colors = getColors(darkMode);
   const chapters = getAllChapters();
 
   const handleReadingPress = (day: number) => {
@@ -109,9 +129,9 @@ export default function BrowseScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.saffronPale }]}>
         <Pressable
           onPress={() => router.back()}
           style={styles.backButton}
@@ -119,9 +139,13 @@ export default function BrowseScreen() {
           accessibilityLabel="Go back"
           hitSlop={12}
         >
-          <Text style={styles.backArrow}>{'\u2190'}</Text>
+          <Text style={[styles.backArrow, { color: colors.saffron }]}>
+            {'\u2190'}
+          </Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Browse Chapters</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+          Browse Chapters
+        </Text>
       </View>
 
       <ScrollView
@@ -144,6 +168,7 @@ export default function BrowseScreen() {
               readings={readings}
               completedReadings={completed_readings}
               onReadingPress={handleReadingPress}
+              colors={colors}
             />
           );
         })}
@@ -156,7 +181,6 @@ export default function BrowseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -164,7 +188,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.saffronPale,
   },
   backButton: {
     width: TOUCH_TARGET.minWidth,
@@ -174,12 +197,10 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: COLORS.saffron,
   },
   headerTitle: {
     fontSize: FONT_SIZES.subtitle,
     fontWeight: '700',
-    color: COLORS.textPrimary,
     marginLeft: SPACING.sm,
   },
   scrollView: {
@@ -189,7 +210,6 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   chapterCard: {
-    backgroundColor: COLORS.surface,
     borderRadius: 16,
     marginBottom: SPACING.md,
     shadowColor: '#000',
@@ -205,14 +225,10 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
     minHeight: TOUCH_TARGET.minHeight,
   },
-  chapterHeaderPressed: {
-    backgroundColor: COLORS.saffronPale,
-  },
   chapterNumberBadge: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.saffronPale,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -220,7 +236,6 @@ const styles = StyleSheet.create({
   chapterNumberText: {
     fontSize: FONT_SIZES.body,
     fontWeight: '700',
-    color: COLORS.saffron,
   },
   chapterInfo: {
     flex: 1,
@@ -228,27 +243,22 @@ const styles = StyleSheet.create({
   chapterName: {
     fontSize: FONT_SIZES.body,
     fontWeight: '600',
-    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   chapterMeaning: {
     fontSize: FONT_SIZES.caption,
-    color: COLORS.textSecondary,
     fontStyle: 'italic',
     marginBottom: 2,
   },
   chapterMeta: {
     fontSize: FONT_SIZES.caption,
-    color: COLORS.textMuted,
   },
   expandArrow: {
     fontSize: 12,
-    color: COLORS.textMuted,
     marginLeft: SPACING.sm,
   },
   readingsList: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.saffronPale,
   },
   readingRow: {
     flexDirection: 'row',
@@ -258,10 +268,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     minHeight: TOUCH_TARGET.minHeight,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: COLORS.saffronPale,
-  },
-  readingRowPressed: {
-    backgroundColor: COLORS.saffronPale,
   },
   readingRowLeft: {
     flex: 1,
@@ -269,16 +275,13 @@ const styles = StyleSheet.create({
   readingDay: {
     fontSize: FONT_SIZES.body,
     fontWeight: '600',
-    color: COLORS.textPrimary,
   },
   readingRange: {
     fontSize: FONT_SIZES.caption,
-    color: COLORS.textMuted,
     marginTop: 2,
   },
   readingCheck: {
     fontSize: 18,
-    color: COLORS.saffron,
     fontWeight: '600',
     marginLeft: SPACING.md,
   },

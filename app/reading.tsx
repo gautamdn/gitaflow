@@ -1,28 +1,85 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { COLORS, SPACING, FONT_SIZES, TOUCH_TARGET } from '../src/constants/theme';
+import { SPACING, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
+import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import type { Shloka } from '../src/types/gita';
+import type { ThemeColors } from '../src/constants/theme';
 
-function ShlokaCard({ shloka }: { shloka: Shloka }) {
+function ShlokaCard({
+  shloka,
+  colors,
+  fonts,
+  showSanskrit,
+  showTransliteration,
+  showTranslation,
+}: {
+  shloka: Shloka;
+  colors: ThemeColors;
+  fonts: ReturnType<typeof getScaledFontSizes>;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showTranslation: boolean;
+}) {
+  const needsDivider =
+    (showSanskrit || showTransliteration) && showTranslation;
+
   return (
-    <View style={styles.shlokaCard}>
-      <Text style={styles.verseNumber}>
+    <View style={[styles.shlokaCard, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.verseNumber, { color: colors.saffron, fontSize: fonts.caption }]}>
         {shloka.chapter}.{shloka.verse}
       </Text>
 
-      {/* Sanskrit — Devanagari */}
-      <Text style={styles.sanskritText}>{shloka.sanskrit}</Text>
+      {showSanskrit && (
+        <Text
+          style={[
+            styles.sanskritText,
+            {
+              color: colors.sanskritText,
+              fontSize: fonts.sanskrit,
+              lineHeight: fonts.sanskrit * 1.6,
+            },
+          ]}
+        >
+          {shloka.sanskrit}
+        </Text>
+      )}
 
-      {/* Transliteration */}
-      <Text style={styles.transliteration}>{shloka.transliteration}</Text>
+      {showTransliteration && (
+        <Text
+          style={[
+            styles.transliteration,
+            {
+              color: colors.textSecondary,
+              fontSize: fonts.body,
+              lineHeight: fonts.body * 1.5,
+            },
+          ]}
+        >
+          {shloka.transliteration}
+        </Text>
+      )}
 
-      <View style={styles.divider} />
+      {needsDivider && (
+        <View style={[styles.divider, { backgroundColor: colors.saffronPale }]} />
+      )}
 
-      {/* Sivananda translation */}
-      <Text style={styles.translation}>{shloka.translations.sivananda}</Text>
+      {showTranslation && (
+        <Text
+          style={[
+            styles.translation,
+            {
+              color: colors.textPrimary,
+              fontSize: fonts.bodyLarge,
+              lineHeight: fonts.bodyLarge * 1.6,
+            },
+          ]}
+        >
+          {shloka.translations.sivananda}
+        </Text>
+      )}
     </View>
   );
 }
@@ -31,6 +88,11 @@ export default function ReadingScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ day?: string }>();
   const { current_day, completed_readings, markDayComplete } = useProgressStore();
+  const { darkMode, fontSize, showSanskrit, showTransliteration, showTranslation } =
+    useSettingsStore();
+
+  const colors = getColors(darkMode);
+  const fonts = getScaledFontSizes(fontSize);
 
   const browseDay = params.day ? Number(params.day) : undefined;
   const displayDay = browseDay ?? current_day;
@@ -47,9 +109,9 @@ export default function ReadingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.saffronPale }]}>
         <Pressable
           onPress={() => router.back()}
           style={styles.backButton}
@@ -57,12 +119,19 @@ export default function ReadingScreen() {
           accessibilityLabel="Go back"
           hitSlop={12}
         >
-          <Text style={styles.backArrow}>{'\u2190'}</Text>
+          <Text style={[styles.backArrow, { color: colors.saffron }]}>
+            {'\u2190'}
+          </Text>
         </Pressable>
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>Day {displayDay}</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+            Day {displayDay}
+          </Text>
           {chapter && (
-            <Text style={styles.headerSubtitle} numberOfLines={1}>
+            <Text
+              style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+              numberOfLines={1}
+            >
               Chapter {chapter.chapter_number}:{' '}
               {chapter.name_english ?? chapter.name_sanskrit}
             </Text>
@@ -77,17 +146,31 @@ export default function ReadingScreen() {
         showsVerticalScrollIndicator={false}
       >
         {shlokas.map((shloka) => (
-          <ShlokaCard key={shloka.id} shloka={shloka} />
+          <ShlokaCard
+            key={shloka.id}
+            shloka={shloka}
+            colors={colors}
+            fonts={fonts}
+            showSanskrit={showSanskrit}
+            showTransliteration={showTransliteration}
+            showTranslation={showTranslation}
+          />
         ))}
         <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* Fixed footer */}
       {(!isBrowseMode || !isComplete) && (
-        <View style={styles.footer}>
+        <View
+          style={[
+            styles.footer,
+            { borderTopColor: colors.saffronPale, backgroundColor: colors.background },
+          ]}
+        >
           <Pressable
             style={({ pressed }) => [
               styles.completeButton,
+              { backgroundColor: colors.saffron },
               isComplete && styles.completeButtonDone,
               pressed && !isComplete && styles.completeButtonPressed,
             ]}
@@ -116,7 +199,6 @@ export default function ReadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -124,7 +206,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.saffronPale,
   },
   backButton: {
     width: TOUCH_TARGET.minWidth,
@@ -134,20 +215,17 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: COLORS.saffron,
   },
   headerText: {
     flex: 1,
     marginLeft: SPACING.sm,
   },
   headerTitle: {
-    fontSize: FONT_SIZES.subtitle,
+    fontSize: 20,
     fontWeight: '700',
-    color: COLORS.textPrimary,
   },
   headerSubtitle: {
-    fontSize: FONT_SIZES.caption,
-    color: COLORS.textSecondary,
+    fontSize: 13,
     marginTop: 2,
   },
   scrollView: {
@@ -157,7 +235,6 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   shlokaCard: {
-    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
@@ -168,46 +245,30 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   verseNumber: {
-    fontSize: FONT_SIZES.caption,
-    color: COLORS.saffron,
     fontWeight: '600',
     marginBottom: SPACING.md,
     textAlign: 'center',
   },
   sanskritText: {
-    fontSize: FONT_SIZES.sanskrit,
-    color: COLORS.sanskritText,
     textAlign: 'center',
-    lineHeight: FONT_SIZES.sanskrit * 1.6,
     marginBottom: SPACING.md,
   },
   transliteration: {
-    fontSize: FONT_SIZES.body,
-    color: COLORS.textSecondary,
     textAlign: 'center',
     fontStyle: 'italic',
-    lineHeight: FONT_SIZES.body * 1.5,
     marginBottom: SPACING.md,
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.saffronPale,
     marginVertical: SPACING.md,
   },
-  translation: {
-    fontSize: FONT_SIZES.bodyLarge,
-    color: COLORS.textPrimary,
-    lineHeight: FONT_SIZES.bodyLarge * 1.6,
-  },
+  translation: {},
   footer: {
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderTopWidth: 1,
-    borderTopColor: COLORS.saffronPale,
-    backgroundColor: COLORS.background,
   },
   completeButton: {
-    backgroundColor: COLORS.saffron,
     borderRadius: 16,
     paddingVertical: SPACING.md + 2,
     alignItems: 'center',
@@ -215,15 +276,15 @@ const styles = StyleSheet.create({
     minHeight: TOUCH_TARGET.minHeight,
   },
   completeButtonPressed: {
-    backgroundColor: COLORS.saffronLight,
+    opacity: 0.85,
     transform: [{ scale: 0.98 }],
   },
   completeButtonDone: {
-    backgroundColor: COLORS.success,
+    backgroundColor: '#4CAF50',
   },
   completeButtonText: {
     color: '#FFFFFF',
-    fontSize: FONT_SIZES.bodyLarge,
+    fontSize: 18,
     fontWeight: '700',
   },
   completeButtonTextDone: {
