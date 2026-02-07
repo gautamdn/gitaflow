@@ -17,6 +17,7 @@ function isConsecutiveDay(dateA: string, dateB: string): boolean {
 
 interface ProgressStore extends UserProgress {
   markDayComplete: (day: number) => void;
+  resetProgress: () => void;
 }
 
 const INITIAL_STATE: UserProgress = {
@@ -30,6 +31,8 @@ export const useProgressStore = create<ProgressStore>()(
   persist(
     (set, get) => ({
       ...INITIAL_STATE,
+
+      resetProgress: () => set(INITIAL_STATE),
 
       markDayComplete: (day: number) => {
         const state = get();

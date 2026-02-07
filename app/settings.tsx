@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useSettingsStore, type FontSizeOption } from '../src/store/useSettingsStore';
+import { useProgressStore } from '../src/store/useProgressStore';
 
 function SettingRow({
   label,
@@ -98,6 +100,8 @@ export default function SettingsScreen() {
     toggleShowTransliteration,
     toggleShowTranslation,
   } = useSettingsStore();
+  const { resetProgress } = useProgressStore();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const colors = getColors(darkMode);
 
@@ -191,6 +195,56 @@ export default function SettingsScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Reset Progress */}
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+          Data
+        </Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          {!showResetConfirm ? (
+            <Pressable
+              style={[styles.settingRow, { borderBottomWidth: 0 }]}
+              onPress={() => setShowResetConfirm(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Reset all progress"
+            >
+              <Text style={[styles.settingLabel, { color: '#D32F2F' }]}>
+                Reset Progress
+              </Text>
+            </Pressable>
+          ) : (
+            <View style={styles.resetConfirm}>
+              <Text style={[styles.resetWarning, { color: colors.textPrimary }]}>
+                This will reset your streak, completed readings, and current day back to Day 1.
+              </Text>
+              <View style={styles.resetButtons}>
+                <Pressable
+                  style={[styles.resetButton, { backgroundColor: colors.saffronPale }]}
+                  onPress={() => setShowResetConfirm(false)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Cancel reset"
+                >
+                  <Text style={[styles.resetButtonText, { color: colors.textPrimary }]}>
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.resetButton, { backgroundColor: '#D32F2F' }]}
+                  onPress={() => {
+                    resetProgress();
+                    setShowResetConfirm(false);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Confirm reset progress"
+                >
+                  <Text style={[styles.resetButtonText, { color: '#FFFFFF' }]}>
+                    Reset
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -272,5 +326,29 @@ const styles = StyleSheet.create({
   },
   fontSizeButtonText: {
     fontWeight: '700',
+  },
+  resetConfirm: {
+    padding: SPACING.lg,
+  },
+  resetWarning: {
+    fontSize: FONT_SIZES.body,
+    lineHeight: FONT_SIZES.body * 1.5,
+    marginBottom: SPACING.md,
+  },
+  resetButtons: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  resetButton: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: TOUCH_TARGET.minHeight,
+  },
+  resetButtonText: {
+    fontSize: FONT_SIZES.body,
+    fontWeight: '600',
   },
 });
