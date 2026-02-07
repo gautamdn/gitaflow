@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Switch } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Switch, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useSettingsStore, type FontSizeOption } from '../src/store/useSettingsStore';
 import { useProgressStore } from '../src/store/useProgressStore';
+import { getSarvamApiKey, setSarvamApiKey, clearSarvamApiKey } from '../src/services/sarvamAI';
 
 function SettingRow({
   label,
@@ -102,6 +103,27 @@ export default function SettingsScreen() {
   } = useSettingsStore();
   const { resetProgress } = useProgressStore();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [apiKeyLoaded, setApiKeyLoaded] = useState(false);
+  const [apiKeySaved, setApiKeySaved] = useState(false);
+
+  useEffect(() => {
+    getSarvamApiKey().then((key) => {
+      if (key) setApiKey(key);
+      setApiKeyLoaded(true);
+    });
+  }, []);
+
+  const handleSaveApiKey = async () => {
+    const trimmed = apiKey.trim();
+    if (trimmed) {
+      await setSarvamApiKey(trimmed);
+    } else {
+      await clearSarvamApiKey();
+    }
+    setApiKeySaved(true);
+    setTimeout(() => setApiKeySaved(false), 2000);
+  };
 
   const colors = getColors(darkMode);
 
@@ -171,6 +193,52 @@ export default function SettingsScreen() {
             onToggle={toggleShowTranslation}
             colors={colors}
           />
+        </View>
+
+        {/* Audio & AI */}
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+          Audio & AI (Sarvam AI)
+        </Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <View style={styles.apiKeySection}>
+            <Text style={[styles.apiKeyHint, { color: colors.textSecondary }]}>
+              Enter your Sarvam AI API key to enable audio chanting and pronunciation feedback. Get one at dashboard.sarvam.ai
+            </Text>
+            <TextInput
+              value={apiKey}
+              onChangeText={(text) => {
+                setApiKey(text);
+                setApiKeySaved(false);
+              }}
+              placeholder="Paste API key here"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry
+              style={[
+                styles.apiKeyInput,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.background,
+                  borderColor: colors.saffronPale,
+                },
+              ]}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Pressable
+              onPress={handleSaveApiKey}
+              style={({ pressed }) => [
+                styles.apiKeySaveButton,
+                { backgroundColor: apiKeySaved ? '#4CAF50' : colors.saffron },
+                pressed && { opacity: 0.85 },
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Save API key"
+            >
+              <Text style={styles.apiKeySaveText}>
+                {apiKeySaved ? 'Saved!' : 'Save Key'}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Info */}
@@ -326,6 +394,34 @@ const styles = StyleSheet.create({
   },
   fontSizeButtonText: {
     fontWeight: '700',
+  },
+  apiKeySection: {
+    padding: SPACING.lg,
+  },
+  apiKeyHint: {
+    fontSize: FONT_SIZES.caption,
+    lineHeight: FONT_SIZES.caption * 1.5,
+    marginBottom: SPACING.md,
+  },
+  apiKeyInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+    fontSize: FONT_SIZES.body,
+    marginBottom: SPACING.md,
+  },
+  apiKeySaveButton: {
+    borderRadius: 12,
+    paddingVertical: SPACING.sm + 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+  },
+  apiKeySaveText: {
+    color: '#FFFFFF',
+    fontSize: FONT_SIZES.body,
+    fontWeight: '600',
   },
   resetConfirm: {
     padding: SPACING.lg,

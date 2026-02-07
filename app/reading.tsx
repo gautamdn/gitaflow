@@ -1,12 +1,104 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Audio } from 'expo-av';
 import { SPACING, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
+import { textToSpeech } from '../src/services/sarvamAI';
 import type { Shloka } from '../src/types/gita';
 import type { ThemeColors } from '../src/constants/theme';
+
+function AudioButton({
+  shloka,
+  colors,
+}: {
+  shloka: Shloka;
+  colors: ThemeColors;
+}) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePlay = useCallback(async () => {
+    setError(null);
+
+    // If currently playing, stop
+    if (isPlaying && sound) {
+      await sound.stopAsync();
+      await sound.unloadAsync();
+      setSound(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Generate audio from Sanskrit text via Sarvam TTS
+      const audioBase64 = await textToSpeech(shloka.sanskrit);
+
+      // Create a data URI for the base64 WAV audio
+      const audioUri = `data:audio/wav;base64,${audioBase64}`;
+
+      // Load and play
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: audioUri },
+        { shouldPlay: true }
+      );
+      setSound(newSound);
+      setIsPlaying(true);
+
+      // Listen for playback completion
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlaying(false);
+          newSound.unloadAsync();
+          setSound(null);
+        }
+      });
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to play audio');
+      setIsPlaying(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [shloka.sanskrit, isPlaying, sound]);
+
+  return (
+    <View style={styles.audioButtonContainer}>
+      <Pressable
+        onPress={handlePlay}
+        disabled={isLoading}
+        style={({ pressed }) => [
+          styles.audioButton,
+          { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
+          pressed && { opacity: 0.7 },
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel={isPlaying ? 'Stop audio' : 'Play shloka audio'}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.saffron} />
+        ) : (
+          <Text style={[styles.audioButtonIcon, { color: colors.saffron }]}>
+            {isPlaying ? '\u23F9' : '\u25B6'}
+          </Text>
+        )}
+        <Text style={[styles.audioButtonText, { color: colors.saffron }]}>
+          {isLoading ? 'Loading...' : isPlaying ? 'Stop' : 'Listen'}
+        </Text>
+      </Pressable>
+      {error && (
+        <Text style={[styles.audioError, { color: '#D32F2F' }]} numberOfLines={2}>
+          {error}
+        </Text>
+      )}
+    </View>
+  );
+}
 
 function ShlokaCard({
   shloka,
@@ -46,6 +138,9 @@ function ShlokaCard({
           {shloka.sanskrit}
         </Text>
       )}
+
+      {/* Audio player */}
+      <AudioButton shloka={shloka} colors={colors} />
 
       {showTransliteration && (
         <Text
@@ -137,6 +232,21 @@ export default function ReadingScreen() {
             </Text>
           )}
         </View>
+        {/* Practice button */}
+        <Pressable
+          onPress={() => router.push(`/practice?day=${displayDay}`)}
+          style={({ pressed }) => [
+            styles.practiceHeaderButton,
+            { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
+            pressed && { opacity: 0.7 },
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel="Practice pronunciation"
+        >
+          <Text style={[styles.practiceHeaderText, { color: colors.saffron }]}>
+            Practice
+          </Text>
+        </Pressable>
       </View>
 
       {/* Shlokas */}
@@ -228,6 +338,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
+  practiceHeaderButton: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: 12,
+    borderWidth: 1.5,
+  },
+  practiceHeaderText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   scrollView: {
     flex: 1,
   },
@@ -251,7 +371,33 @@ const styles = StyleSheet.create({
   },
   sanskritText: {
     textAlign: 'center',
+    marginBottom: SPACING.sm,
+  },
+  audioButtonContainer: {
+    alignItems: 'center',
     marginBottom: SPACING.md,
+  },
+  audioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    gap: SPACING.sm,
+  },
+  audioButtonIcon: {
+    fontSize: 14,
+  },
+  audioButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  audioError: {
+    fontSize: 12,
+    marginTop: SPACING.xs,
+    textAlign: 'center',
   },
   transliteration: {
     textAlign: 'center',

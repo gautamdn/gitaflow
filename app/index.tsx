@@ -102,6 +102,28 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
+        {/* Practice CTA */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.practiceButton,
+            { backgroundColor: colors.surface, borderColor: colors.saffron },
+            pressed && { opacity: 0.85 },
+          ]}
+          onPress={() => router.push('/practice')}
+          accessibilityRole="button"
+          accessibilityLabel="Practice pronunciation"
+        >
+          <Text style={styles.practiceIcon}>{'\u{1F3A4}'}</Text>
+          <View style={styles.practiceTextContainer}>
+            <Text style={[styles.practiceTitle, { color: colors.textPrimary }]}>
+              Practice Chanting
+            </Text>
+            <Text style={[styles.practiceSubtitle, { color: colors.textMuted }]}>
+              Listen, repeat & get pronunciation feedback
+            </Text>
+          </View>
+        </Pressable>
+
         {/* Nav links */}
         <View style={styles.navRow}>
           <Pressable
@@ -242,6 +264,34 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: FONT_SIZES.caption,
+  },
+  practiceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 1.5,
+    padding: SPACING.lg,
+    marginTop: SPACING.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  practiceIcon: {
+    fontSize: 28,
+    marginRight: SPACING.md,
+  },
+  practiceTextContainer: {
+    flex: 1,
+  },
+  practiceTitle: {
+    fontSize: FONT_SIZES.bodyLarge,
+    fontWeight: '600',
+  },
+  practiceSubtitle: {
+    fontSize: FONT_SIZES.caption,
+    marginTop: 2,
   },
   navRow: {
     flexDirection: 'row',
