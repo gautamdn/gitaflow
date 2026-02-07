@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { UserProgress } from '../types/gita';
+import type { UserProgress, PronunciationScore } from '../types/gita';
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
@@ -17,6 +17,8 @@ function isConsecutiveDay(dateA: string, dateB: string): boolean {
 
 interface ProgressStore extends UserProgress {
   markDayComplete: (day: number) => void;
+  addPronunciationScore: (shlokaId: string, score: number) => void;
+  getBestScore: (shlokaId: string) => number | null;
   resetProgress: () => void;
 }
 
@@ -25,6 +27,7 @@ const INITIAL_STATE: UserProgress = {
   completed_readings: [],
   streak_count: 0,
   last_read_date: null,
+  pronunciation_scores: [],
 };
 
 export const useProgressStore = create<ProgressStore>()(
@@ -33,6 +36,26 @@ export const useProgressStore = create<ProgressStore>()(
       ...INITIAL_STATE,
 
       resetProgress: () => set(INITIAL_STATE),
+
+      addPronunciationScore: (shlokaId: string, score: number) => {
+        const state = get();
+        const entry: PronunciationScore = {
+          shloka_id: shlokaId,
+          score,
+          date: getTodayString(),
+        };
+        set({
+          pronunciation_scores: [...state.pronunciation_scores, entry],
+        });
+      },
+
+      getBestScore: (shlokaId: string): number | null => {
+        const scores = get().pronunciation_scores.filter(
+          (s) => s.shloka_id === shlokaId
+        );
+        if (scores.length === 0) return null;
+        return Math.max(...scores.map((s) => s.score));
+      },
 
       markDayComplete: (day: number) => {
         const state = get();

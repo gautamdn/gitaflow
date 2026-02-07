@@ -55,9 +55,16 @@ export interface GitaData {
   daily_readings: DailyReading[];
 }
 
+export interface PronunciationScore {
+  shloka_id: string;
+  score: number;
+  date: string;
+}
+
 export interface UserProgress {
   current_day: number;
   completed_readings: number[];
   streak_count: number;
   last_read_date: string | null;
+  pronunciation_scores: PronunciationScore[];
 }
