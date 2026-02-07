@@ -7,7 +7,11 @@
     "scheme": "gitaflow",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
     "ios": {
       "bundleIdentifier": "com.gitaflow.app",
       "supportsTablet": true
