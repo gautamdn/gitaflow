@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
+import { File, Paths } from 'expo-file-system';
 import { SPACING, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
@@ -37,15 +38,23 @@ function AudioButton({
 
     setIsLoading(true);
     try {
+      // Configure audio mode for playback
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+      });
+
       // Generate audio from Sanskrit text via Sarvam TTS
       const audioBase64 = await textToSpeech(shloka.sanskrit);
 
-      // Create a data URI for the base64 WAV audio
-      const audioUri = `data:audio/wav;base64,${audioBase64}`;
+      // Write base64 audio to a temp file (data URIs are unreliable on some devices)
+      const file = new File(Paths.cache, `shloka_${shloka.id.replace('.', '_')}.wav`);
+      file.write(audioBase64, { encoding: 'base64' });
+      const fileUri = file.uri;
 
-      // Load and play
+      // Load and play from file
       const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: audioUri },
+        { uri: fileUri },
         { shouldPlay: true }
       );
       setSound(newSound);
