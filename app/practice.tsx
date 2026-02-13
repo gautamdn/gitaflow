@@ -10,7 +10,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
-import { File, Paths } from 'expo-file-system';
 import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
@@ -78,13 +77,10 @@ export default function PracticeScreen() {
 
       const audioBase64 = await textToSpeech(shloka.sanskrit, { pace });
 
-      // Write to temp file (data URIs are unreliable on some devices)
-      const file = new File(Paths.cache, `practice_${shloka.id.replace('.', '_')}_${pace}.wav`);
-      file.write(audioBase64, { encoding: 'base64' });
-      const fileUri = file.uri;
-
+      // Play from data URI
+      const dataUri = `data:audio/wav;base64,${audioBase64}`;
       const { sound } = await Audio.Sound.createAsync(
-        { uri: fileUri },
+        { uri: dataUri },
         { shouldPlay: true }
       );
       soundRef.current = sound;
