@@ -6,6 +6,8 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -117,8 +119,9 @@ export default function PracticeScreen() {
       setIsProcessing(true);
       try {
         const sttResult = await speechToText(uri);
+        // STT returns Devanagari, so compare against Sanskrit text (also Devanagari)
         const scoreResult = scorePronunciation(
-          shloka.transliteration,
+          shloka.sanskrit,
           sttResult.transcript
         );
         setResult(scoreResult);
@@ -135,7 +138,14 @@ export default function PracticeScreen() {
     try {
       const permission = await Audio.requestPermissionsAsync();
       if (!permission.granted) {
-        setError('Microphone permission is required to record.');
+        Alert.alert(
+          'Microphone Access',
+          'Microphone permission is needed to record your chanting. Please go to Settings > Expo Go and enable Microphone.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Open Settings', onPress: () => Linking.openSettings() },
+          ]
+        );
         return;
       }
 

@@ -97,11 +97,11 @@ export async function speechToText(
   // For React Native, we need to append the file as a blob
   formData.append('file', {
     uri: audioFileUri,
-    type: 'audio/wav',
-    name: 'recording.wav',
+    type: 'audio/m4a',
+    name: 'recording.m4a',
   } as any);
   formData.append('language_code', options?.language ?? 'hi-IN');
-  formData.append('model', options?.model ?? 'saarika:v2');
+  formData.append('model', options?.model ?? 'saarika:v2.5');
 
   const response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
     method: 'POST',
