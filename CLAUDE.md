@@ -21,21 +21,18 @@ A self-paced Bhagavad Gita study app that combines structured daily readings wit
 - Daily greeting screen with current day/progress
 
 ### 2. Audio Chanting (Listen & Repeat)
-- Pre-recorded audio for each shloka (professional Sanskrit chanting)
-- Playback controls: play/pause, repeat, speed adjustment (0.5x–1.5x)
-- Line-by-line mode: plays one line, pauses for user to repeat, then continues
-- Full shloka mode: plays the complete verse continuously
-- Audio source: Public domain recordings or licensed content (TODO: source audio)
+- AI-generated audio for each shloka via Sarvam AI TTS
+- Playback controls: play/stop, speed adjustment (0.5x, 0.75x, 1.0x)
+- Audio on both Reading and Practice screens
 
 ### 3. AI Pronunciation Feedback
 - User records themselves chanting a shloka
-- App compares user's pronunciation against reference audio
+- Sarvam AI STT transcribes recording to Devanagari
+- Compares transcription against Sanskrit source text (Levenshtein distance)
 - Provides feedback:
-  - Overall accuracy score (percentage)
-  - Highlights mispronounced words/syllables
-  - Playback comparison (reference vs. user, side by side)
-- Tech approach: Speech-to-text (Whisper or Google Speech API) → compare phonemes against expected transliteration
-- Stretch: real-time feedback as user chants
+  - Overall accuracy score (0-100%)
+  - Highlights mismatched words
+  - Best score tracking per shloka
 
 ### 4. Progress & Streaks
 - Daily streak counter
@@ -45,26 +42,23 @@ A self-paced Bhagavad Gita study app that combines structured daily readings wit
 
 ### 5. Settings
 - Dark mode / light mode
-- Font size adjustment
+- Font size adjustment (small, medium, large)
 - Language toggle: Show/hide Sanskrit, transliteration, translation independently
-- Notification reminder for daily reading
+- Sarvam AI API key management
+- Reset progress option
+- Notification reminder for daily reading (TODO)
 
-## Tech Stack (Recommended)
+## Tech Stack
 
-### Option A: React Native + Expo (Recommended for cross-platform)
-- **Framework:** React Native with Expo SDK
+- **Framework:** React Native with Expo SDK 54, expo-router v6
 - **Language:** TypeScript
-- **Navigation:** React Navigation
-- **State:** Zustand or Redux Toolkit
+- **Navigation:** expo-router (file-based routing)
+- **State:** Zustand with AsyncStorage persistence
 - **Audio:** expo-av for playback & recording
-- **Speech-to-text:** Whisper API (OpenAI) or Google Cloud Speech-to-Text
-- **Storage:** AsyncStorage for local progress; SQLite for verse data
-- **Content:** All Gita text stored locally as JSON/SQLite (offline-first)
-- **Styling:** NativeWind (Tailwind for React Native) or StyleSheet
-
-### Option B: Swift (iOS only)
-- SwiftUI + AVFoundation + Speech framework
-- Simpler if targeting iOS only initially
+- **TTS:** Sarvam AI Text-to-Speech (`bulbul:v2`, speaker `anushka`, hi-IN)
+- **STT:** Sarvam AI Speech-to-Text (`saarika:v2.5`, hi-IN)
+- **Storage:** AsyncStorage for progress & settings; JSON for verse data (offline-first)
+- **Styling:** React Native StyleSheet with custom theme system (saffron palette, dark mode)
 
 ## Data Model
 
@@ -115,22 +109,28 @@ UserProgress
 - Large tap targets (older users)
 - Minimal clutter — one action per screen
 
-## Content Sourcing (TODO)
-- [ ] Gita text: Public domain (Gita Supersite by IIT Kanpur, or similar)
-- [ ] Translations: Multiple public domain options (Swami Sivananda, etc.)
-- [ ] Audio: Record or source CC-licensed chanting audio
+## Content Sourcing
+- [x] Gita text: All 700 shlokas loaded from local JSON (Sanskrit, transliteration, translations)
+- [x] Translations: Swami Sivananda (public domain)
+- [x] Audio: Generated via Sarvam AI TTS (hi-IN, bulbul:v2)
 - [ ] Commentary: Write original or use public domain
 
 ## Pronunciation Scoring Approach
 
-### Phase 1 (MVP)
-1. Record user audio via device mic
-2. Send to Whisper API → get transcription
-3. Compare transcription against expected transliteration using Levenshtein distance
-4. Score = similarity percentage
-5. Highlight differing segments
+### Current Implementation
+1. Record user audio via device mic (M4A format, HIGH_QUALITY preset)
+2. Send to Sarvam AI STT (`saarika:v2.5`) → get Devanagari transcription
+3. Compare Devanagari transcription against Sanskrit source text using Levenshtein distance
+4. Score = similarity percentage (0-100%)
+5. Show mismatched words for focused practice
 
-### Phase 2 (Post-launch)
+### Technical Notes
+- STT returns Devanagari text — must compare against `shloka.sanskrit`, NOT transliteration
+- Audio playback uses data URIs (`data:audio/wav;base64,...`) — SDK 54's `File.write()` only accepts 1 argument, `{ encoding: 'base64' }` causes a Swift crash
+- Sarvam API key stored in AsyncStorage, configured via Settings screen
+- Recording format: M4A (iOS default) sent as `audio/m4a` MIME type to Sarvam
+
+### Future Improvements
 - Phoneme-level comparison using forced alignment
 - Real-time visual feedback (waveform comparison)
 - Specific pronunciation tips for common Sanskrit sounds (retroflex, aspirated consonants)
@@ -146,22 +146,30 @@ UserProgress
 
 ## Development Phases
 
-### Phase 1: Core Reading Experience (Weeks 1-3)
-- Project setup (React Native + Expo)
-- Gita content database (all 700 shlokas)
-- Home screen + reading screen
-- Mark complete + progress tracking
-- Basic navigation
+### Phase 1: Core Reading Experience — COMPLETE
+- [x] Project setup (React Native + Expo SDK 54, expo-router v6)
+- [x] Gita content database (all 700 shlokas as local JSON)
+- [x] Home screen with greeting, streak, daily reading card
+- [x] Reading screen (Sanskrit, transliteration, translation, audio player)
+- [x] Mark complete + progress tracking (Zustand + AsyncStorage)
+- [x] Browse screen (all 18 chapters, non-linear access)
+- [x] Settings screen (dark mode, font size, language toggles, reset progress)
+- [x] Tab navigation (Home, Browse, Settings)
 
-### Phase 2: Audio & Practice (Weeks 4-6)
-- Audio playback integration
-- Listen & repeat mode
-- Recording functionality
-- Basic pronunciation scoring (Whisper comparison)
+### Phase 2: Audio & Practice — COMPLETE
+- [x] Sarvam AI TTS integration (audio playback via data URIs)
+- [x] Listen button on Reading screen with play/stop
+- [x] Practice screen with speed control (0.5x, 0.75x, 1.0x)
+- [x] Recording via expo-av (M4A format)
+- [x] Sarvam AI STT integration (saarika:v2.5)
+- [x] Pronunciation scoring (Levenshtein distance on Devanagari text)
+- [x] Score display with accuracy %, mismatched words, best score tracking
+- [x] Microphone permission flow with Settings deep link
+- [x] Sarvam API key management in Settings
 
-### Phase 3: Polish & Ship (Weeks 7-8)
-- Streaks & milestones UI
-- Settings screen
-- Dark mode
-- Notifications
-- App Store assets & submission
+### Phase 3: Polish & Ship — TODO
+- [ ] Streaks & milestones UI improvements
+- [ ] Notification reminders for daily reading
+- [ ] App icon and splash screen
+- [ ] App Store assets & submission
+- [ ] TestFlight beta testing
