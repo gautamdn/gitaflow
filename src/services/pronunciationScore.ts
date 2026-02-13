@@ -25,13 +25,15 @@ function levenshteinDistance(a: string, b: string): number {
   return dp[m][n];
 }
 
-/** Normalize text for comparison: lowercase, strip diacritics, collapse whitespace */
+/** Normalize text for comparison: strip punctuation and verse numbers, collapse whitespace */
 function normalizeForComparison(text: string): string {
   return text
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // strip diacritics
-    .replace(/[^\w\s]/g, '') // strip punctuation
+    .replace(/[\u0964\u0965]/g, '') // strip Devanagari danda (। ॥)
+    .replace(/[॥।|]/g, '') // additional danda variants
+    .replace(/\|\|[\d\-]+\|\|/g, '') // strip verse numbers like ||1-7||
+    .replace(/\d+/g, '') // strip digits
+    .replace(/[^\p{L}\s]/gu, '') // keep only letters (any script) and spaces
     .replace(/\s+/g, ' ')
     .trim();
 }

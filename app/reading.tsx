@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
@@ -44,9 +44,7 @@ function AudioButton({
       });
 
       // Generate audio from Sanskrit text via Sarvam TTS
-      Alert.alert('Debug', `Calling TTS for ${shloka.id}...`);
       const audioBase64 = await textToSpeech(shloka.sanskrit);
-      Alert.alert('Debug', `Got audio: ${audioBase64.length} chars`);
 
       // Play from data URI
       const dataUri = `data:audio/wav;base64,${audioBase64}`;
@@ -66,7 +64,6 @@ function AudioButton({
         }
       });
     } catch (err: any) {
-      Alert.alert('Audio Error', err.message ?? 'Unknown error');
       setError(err.message ?? 'Failed to play audio');
       setIsPlaying(false);
     } finally {
