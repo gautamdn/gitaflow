@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const SARVAM_API_BASE = 'https://api.sarvam.ai';
 const API_KEY_STORAGE_KEY = 'gitaflow-sarvam-api-key';
@@ -7,15 +7,15 @@ const API_KEY_STORAGE_KEY = 'gitaflow-sarvam-api-key';
 const audioCache = new Map<string, string>();
 
 export async function getSarvamApiKey(): Promise<string | null> {
-  return AsyncStorage.getItem(API_KEY_STORAGE_KEY);
+  return SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
 }
 
 export async function setSarvamApiKey(key: string): Promise<void> {
-  await AsyncStorage.setItem(API_KEY_STORAGE_KEY, key);
+  await SecureStore.setItemAsync(API_KEY_STORAGE_KEY, key);
 }
 
 export async function clearSarvamApiKey(): Promise<void> {
-  await AsyncStorage.removeItem(API_KEY_STORAGE_KEY);
+  await SecureStore.deleteItemAsync(API_KEY_STORAGE_KEY);
 }
 
 /**
