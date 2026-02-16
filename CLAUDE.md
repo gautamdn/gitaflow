@@ -127,7 +127,7 @@ UserProgress
 ### Technical Notes
 - STT returns Devanagari text — must compare against `shloka.sanskrit`, NOT transliteration
 - Audio playback uses data URIs (`data:audio/wav;base64,...`) — SDK 54's `File.write()` only accepts 1 argument, `{ encoding: 'base64' }` causes a Swift crash
-- Sarvam API key stored in AsyncStorage, configured via Settings screen
+- Sarvam API key stored in SecureStore (iOS Keychain), configured via Settings screen
 - Recording format: M4A (iOS default) sent as `audio/m4a` MIME type to Sarvam
 
 ### Future Improvements
@@ -136,13 +136,13 @@ UserProgress
 - Specific pronunciation tips for common Sanskrit sounds (retroflex, aspirated consonants)
 
 ## App Store Readiness Checklist
-- [ ] App icon (Om symbol + warm gradient, similar to 10 Min Gita aesthetic)
+- [x] App icon (Om symbol on saffron gradient, generated via sharp)
 - [ ] Screenshots for 6.7" and 5.5" displays
-- [ ] Privacy policy (required for App Store)
-- [ ] App Store description and keywords
+- [x] Privacy policy (privacy-policy.html)
+- [x] App Store description and keywords (APPSTORE.md)
 - [ ] TestFlight beta testing
-- [ ] Age rating: 4+
-- [ ] Category: Books or Education
+- [x] Age rating: 4+
+- [x] Category: Education
 
 ## Development Phases
 
@@ -167,9 +167,13 @@ UserProgress
 - [x] Microphone permission flow with Settings deep link
 - [x] Sarvam API key management in Settings
 
-### Phase 3: Polish & Ship — TODO
+### Phase 3: Polish & Ship — IN PROGRESS
 - [ ] Streaks & milestones UI improvements
 - [ ] Notification reminders for daily reading
-- [ ] App icon and splash screen
-- [ ] App Store assets & submission
+- [x] App icon and splash screen (Om on saffron gradient, expo-splash-screen)
+- [x] App Store assets (APPSTORE.md, privacy-policy.html)
+- [x] API key security (migrated from AsyncStorage to SecureStore/Keychain)
+- [x] Word-by-word visual diff with partial credit scoring
+- [ ] Screenshots for App Store
+- [ ] EAS Build (production IPA)
 - [ ] TestFlight beta testing
