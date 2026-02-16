@@ -18,6 +18,7 @@ import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import { textToSpeech, speechToText } from '../src/services/sarvamAI';
 import { scorePronunciation, type PronunciationResult } from '../src/services/pronunciationScore';
+import { WordDiffDisplay } from '../src/components/WordDiffDisplay';
 
 type PaceOption = 0.5 | 0.75 | 1.0;
 
@@ -441,26 +442,24 @@ export default function PracticeScreen() {
                     : 'Try again — listen first, then repeat.'}
             </Text>
 
-            {/* What we heard */}
+            {/* Word-by-word visual diff */}
+            {result.wordComparisons && result.wordComparisons.length > 0 && (
+              <WordDiffDisplay
+                wordComparisons={result.wordComparisons}
+                darkMode={darkMode}
+                textMutedColor={colors.textMuted}
+              />
+            )}
+
+            {/* Full transcript */}
             <View style={styles.comparisonSection}>
               <Text style={[styles.comparisonLabel, { color: colors.textMuted }]}>
-                We heard:
+                Full transcript:
               </Text>
               <Text style={[styles.comparisonText, { color: colors.textPrimary }]}>
                 {result.actual || '(nothing detected)'}
               </Text>
             </View>
-
-            {result.mismatches.length > 0 && (
-              <View style={styles.comparisonSection}>
-                <Text style={[styles.comparisonLabel, { color: colors.textMuted }]}>
-                  Words to practice:
-                </Text>
-                <Text style={[styles.mismatchWords, { color: '#D32F2F' }]}>
-                  {result.mismatches.join(', ')}
-                </Text>
-              </View>
-            )}
 
             {/* Try again button */}
             <Pressable
@@ -735,10 +734,6 @@ const styles = StyleSheet.create({
   comparisonText: {
     fontSize: FONT_SIZES.body,
     lineHeight: FONT_SIZES.body * 1.5,
-  },
-  mismatchWords: {
-    fontSize: FONT_SIZES.body,
-    fontWeight: '600',
   },
   tryAgainButton: {
     borderWidth: 2,
