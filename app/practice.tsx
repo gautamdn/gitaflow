@@ -57,6 +57,10 @@ export default function PracticeScreen() {
 
   const bestScore = shloka ? getBestScore(shloka.id) : null;
 
+  // Word drill state
+  const [playingWord, setPlayingWord] = useState<string | null>(null);
+  const wordSoundRef = useRef<Audio.Sound | null>(null);
+
   const cancelledRef = useRef(false);
 
   function friendlyError(msg: string): string {
@@ -68,6 +72,47 @@ export default function PracticeScreen() {
     if (msg.includes('nothing detected')) return 'No speech detected. Try speaking louder or closer to the mic.';
     return msg || 'Something went wrong. Please try again.';
   }
+
+  // Play a single word's audio
+  const handleWordPress = useCallback(async (word: string) => {
+    // Stop any currently playing word audio
+    if (wordSoundRef.current) {
+      wordSoundRef.current.stopAsync().then(() => wordSoundRef.current?.unloadAsync());
+      wordSoundRef.current = null;
+    }
+
+    // If tapping the same word that's playing, just stop
+    if (playingWord === word) {
+      setPlayingWord(null);
+      return;
+    }
+
+    setPlayingWord(word);
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+      });
+
+      const audioBase64 = await textToSpeech(word, { pace: 0.65 });
+      const dataUri = `data:audio/wav;base64,${audioBase64}`;
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: dataUri },
+        { shouldPlay: true }
+      );
+      wordSoundRef.current = sound;
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setPlayingWord(null);
+          sound.unloadAsync();
+          wordSoundRef.current = null;
+        }
+      });
+    } catch {
+      setPlayingWord(null);
+    }
+  }, [playingWord]);
 
   // Play reference audio
   const handleListen = useCallback(async () => {
@@ -203,6 +248,11 @@ export default function PracticeScreen() {
       setCurrentIndex(index);
       setResult(null);
       setError(null);
+      setPlayingWord(null);
+      if (wordSoundRef.current) {
+        wordSoundRef.current.stopAsync().then(() => wordSoundRef.current?.unloadAsync());
+        wordSoundRef.current = null;
+      }
     }
   };
 
@@ -476,6 +526,8 @@ export default function PracticeScreen() {
                 wordComparisons={result.wordComparisons}
                 darkMode={darkMode}
                 textMutedColor={colors.textMuted}
+                onWordPress={handleWordPress}
+                playingWord={playingWord}
               />
             )}
 

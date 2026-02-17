@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { SPACING, FONT_SIZES } from '../constants/theme';
 import type { WordComparison, WordStatus } from '../services/pronunciationScore';
 
@@ -23,35 +23,83 @@ interface WordDiffDisplayProps {
   wordComparisons: WordComparison[];
   darkMode: boolean;
   textMutedColor: string;
+  onWordPress?: (word: string) => void;
+  playingWord?: string | null;
 }
 
-export function WordDiffDisplay({ wordComparisons, darkMode, textMutedColor }: WordDiffDisplayProps) {
+export function WordDiffDisplay({
+  wordComparisons,
+  darkMode,
+  textMutedColor,
+  onWordPress,
+  playingWord,
+}: WordDiffDisplayProps) {
   const palette = darkMode ? DARK_STATUS_COLORS : STATUS_COLORS;
   const mainWords = wordComparisons.filter(wc => wc.status !== 'extra');
   const extraWords = wordComparisons.filter(wc => wc.status === 'extra');
+  const hasWeakWords = mainWords.some(wc => wc.status !== 'correct');
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionLabel, { color: textMutedColor }]}>
-        WORD-BY-WORD
+        WORD-BY-WORD{hasWeakWords && onWordPress ? '  \u2022  tap to hear' : ''}
       </Text>
       <View style={styles.chipContainer}>
         {mainWords.map((wc, index) => {
           const colors = palette[wc.status];
           const showActual = wc.status !== 'correct';
-          return (
-            <View
-              key={index}
-              style={[styles.chip, { backgroundColor: colors.bg }]}
-            >
-              <Text style={[styles.expectedWord, { color: colors.text }]}>
-                {wc.expected}
-              </Text>
+          const isTappable = wc.status !== 'correct' && onWordPress;
+          const isPlaying = playingWord === wc.expected;
+
+          const chipContent = (
+            <>
+              <View style={styles.chipHeader}>
+                <Text style={[styles.expectedWord, { color: colors.text }]}>
+                  {wc.expected}
+                </Text>
+                {isTappable && (
+                  isPlaying ? (
+                    <ActivityIndicator size={12} color={colors.text} style={styles.spinner} />
+                  ) : (
+                    <Text style={[styles.speakerIcon, { color: colors.text }]}>
+                      {'\u{1F50A}'}
+                    </Text>
+                  )
+                )}
+              </View>
               {showActual && (
                 <Text style={[styles.actualWord, { color: textMutedColor }]}>
                   {wc.status === 'missing' ? '(skipped)' : wc.actual}
                 </Text>
               )}
+            </>
+          );
+
+          if (isTappable) {
+            return (
+              <Pressable
+                key={index}
+                onPress={() => onWordPress(wc.expected)}
+                style={({ pressed }) => [
+                  styles.chip,
+                  { backgroundColor: colors.bg },
+                  isPlaying && styles.chipPlaying,
+                  pressed && { opacity: 0.7 },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={`Hear pronunciation of ${wc.expected}`}
+              >
+                {chipContent}
+              </Pressable>
+            );
+          }
+
+          return (
+            <View
+              key={index}
+              style={[styles.chip, { backgroundColor: colors.bg }]}
+            >
+              {chipContent}
             </View>
           );
         })}
@@ -94,9 +142,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minWidth: 48,
   },
+  chipPlaying: {
+    borderWidth: 2,
+    borderColor: 'rgba(0,0,0,0.15)',
+  },
+  chipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   expectedWord: {
     fontSize: FONT_SIZES.body,
     fontWeight: '600',
+  },
+  speakerIcon: {
+    fontSize: 10,
+  },
+  spinner: {
+    marginLeft: 2,
   },
   actualWord: {
     fontSize: FONT_SIZES.caption,
