@@ -51,14 +51,20 @@ function levenshteinDistance(a: string, b: string): number {
   return dp[m][n];
 }
 
+/** Strip speaker attribution lines like "धृतराष्ट्र उवाच |" from the start of a shloka */
+function stripSpeakerAttribution(text: string): string {
+  // Match lines ending with उवाच followed by optional punctuation (speaker headers)
+  return text.replace(/^.*उवाच\s*[|।॥\n]+\s*/u, '');
+}
+
 /** Normalize text for comparison: strip punctuation and verse numbers, collapse whitespace */
 function normalizeForComparison(text: string): string {
-  return text
+  return stripSpeakerAttribution(text)
     .toLowerCase()
+    .replace(/\|\|[\d\p{Nd}\-]+\|\|/gu, '') // strip verse numbers like ||1-7|| or ||१-७|| (MUST come before pipe stripping)
     .replace(/[\u0964\u0965]/g, '') // strip Devanagari danda (। ॥)
     .replace(/[॥।|]/g, '') // additional danda variants
-    .replace(/\|\|[\d\-]+\|\|/g, '') // strip verse numbers like ||1-7||
-    .replace(/\d+/g, '') // strip digits
+    .replace(/[\d\u0966-\u096F]+/g, '') // strip ASCII and Devanagari digits
     .replace(/[^\p{L}\s]/gu, '') // keep only letters (any script) and spaces
     .replace(/\s+/g, ' ')
     .trim();
@@ -139,6 +145,35 @@ function alignWords(
   }
 
   return result;
+}
+
+/**
+ * Build a map from normalized Sanskrit words to their transliteration equivalents.
+ * Both inputs should be the raw shloka text (before normalization).
+ */
+export function buildTransliterationMap(
+  sanskrit: string,
+  transliteration: string
+): Record<string, string> {
+  const normSanskrit = normalizeForComparison(sanskrit);
+  const normTranslit = transliteration
+    .replace(/^.*uvāca\s*[.|।॥\n]+\s*/iu, '') // strip speaker attribution in transliteration
+    .replace(/\|\|[\d\p{Nd}\-]+\|\|/gu, '')
+    .replace(/[।॥|.]/g, '')
+    .replace(/[\d\u0966-\u096F]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+
+  const sWords = normSanskrit.split(' ').filter(w => w.length > 0);
+  const tWords = normTranslit.split(' ').filter(w => w.length > 0);
+
+  const map: Record<string, string> = {};
+  const len = Math.min(sWords.length, tWords.length);
+  for (let i = 0; i < len; i++) {
+    map[sWords[i]] = tWords[i];
+  }
+  return map;
 }
 
 /**

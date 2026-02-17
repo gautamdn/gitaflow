@@ -17,7 +17,7 @@ import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import { textToSpeech, speechToText } from '../src/services/sarvamAI';
-import { scorePronunciation, type PronunciationResult } from '../src/services/pronunciationScore';
+import { scorePronunciation, buildTransliterationMap, type PronunciationResult } from '../src/services/pronunciationScore';
 import { WordDiffDisplay } from '../src/components/WordDiffDisplay';
 
 type PaceOption = 0.5 | 0.75 | 1.0;
@@ -56,6 +56,9 @@ export default function PracticeScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const bestScore = shloka ? getBestScore(shloka.id) : null;
+
+  // Build transliteration map for the current shloka
+  const translitMap = shloka ? buildTransliterationMap(shloka.sanskrit, shloka.transliteration) : {};
 
   // Word drill state
   const [playingWord, setPlayingWord] = useState<string | null>(null);
@@ -528,6 +531,7 @@ export default function PracticeScreen() {
                 textMutedColor={colors.textMuted}
                 onWordPress={handleWordPress}
                 playingWord={playingWord}
+                transliterationMap={translitMap}
               />
             )}
 

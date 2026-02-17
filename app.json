@@ -20,7 +20,10 @@
     "ios": {
       "bundleIdentifier": "com.gitaflow.app",
       "supportsTablet": true,
-      "icon": "./assets/icon.png"
+      "icon": "./assets/icon.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.gitaflow.app",

@@ -42,6 +42,9 @@ Thumbs.db
 # Testing
 coverage/
 
+# Errors
+errors/
+
 # Debug
 npm-debug.*
 yarn-debug.*

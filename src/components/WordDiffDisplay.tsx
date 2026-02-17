@@ -25,6 +25,8 @@ interface WordDiffDisplayProps {
   textMutedColor: string;
   onWordPress?: (word: string) => void;
   playingWord?: string | null;
+  /** Map from normalized Sanskrit word to its transliteration */
+  transliterationMap?: Record<string, string>;
 }
 
 export function WordDiffDisplay({
@@ -33,6 +35,7 @@ export function WordDiffDisplay({
   textMutedColor,
   onWordPress,
   playingWord,
+  transliterationMap,
 }: WordDiffDisplayProps) {
   const palette = darkMode ? DARK_STATUS_COLORS : STATUS_COLORS;
   const mainWords = wordComparisons.filter(wc => wc.status !== 'extra');
@@ -51,6 +54,8 @@ export function WordDiffDisplay({
           const isTappable = wc.status !== 'correct' && onWordPress;
           const isPlaying = playingWord === wc.expected;
 
+          const translit = transliterationMap?.[wc.expected];
+
           const chipContent = (
             <>
               <View style={styles.chipHeader}>
@@ -67,6 +72,11 @@ export function WordDiffDisplay({
                   )
                 )}
               </View>
+              {translit && (
+                <Text style={[styles.translitWord, { color: textMutedColor }]}>
+                  {translit}
+                </Text>
+              )}
               {showActual && (
                 <Text style={[styles.actualWord, { color: textMutedColor }]}>
                   {wc.status === 'missing' ? '(skipped)' : wc.actual}
@@ -160,6 +170,10 @@ const styles = StyleSheet.create({
   },
   spinner: {
     marginLeft: 2,
+  },
+  translitWord: {
+    fontSize: FONT_SIZES.caption,
+    marginTop: 2,
   },
   actualWord: {
     fontSize: FONT_SIZES.caption,
