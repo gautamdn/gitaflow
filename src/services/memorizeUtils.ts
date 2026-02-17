@@ -109,6 +109,44 @@ export function firstLetterHint(word: string): string {
   return word.charAt(0) + '\u2026'; // first character + ellipsis
 }
 
+// --- Transliteration map (wordIndex → Roman script) ---
+
+function stripTransliteration(transliteration: string): string {
+  return transliteration
+    .replace(/^.*uvāca\s*[.|।॥\n]+\s*/iu, '')  // speaker attribution
+    .replace(/\|\|[\d\p{Nd}\-]+\|\|/gu, '')      // verse numbers
+    .replace(/[\u0964\u0965]/g, '')               // dandas
+    .trim();
+}
+
+/**
+ * Build a map from wordIndex → transliteration word.
+ * Pairs up tokenized Sanskrit words with transliteration words by position.
+ */
+export function buildWordTranslitMap(
+  sanskrit: string,
+  transliteration: string
+): Record<number, string> {
+  const tokens = tokenizeSanskrit(sanskrit);
+  const wordTokens = tokens.filter(t => t.type === 'word');
+
+  const cleaned = stripTransliteration(transliteration);
+  const parts = cleaned.split(/(\s+|[|.]+)/u);
+  const translitWords: string[] = [];
+  for (const part of parts) {
+    if (part && /\p{L}/u.test(part)) {
+      translitWords.push(part);
+    }
+  }
+
+  const map: Record<number, string> = {};
+  const len = Math.min(wordTokens.length, translitWords.length);
+  for (let i = 0; i < len; i++) {
+    map[wordTokens[i].wordIndex] = translitWords[i];
+  }
+  return map;
+}
+
 // --- Split tokens into lines for Level 5 ---
 
 export function splitIntoLines(tokens: MemorizeToken[]): MemorizeToken[][] {

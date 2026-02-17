@@ -20,6 +20,7 @@ import {
   computeBlanks,
   firstLetterHint,
   splitIntoLines,
+  buildWordTranslitMap,
   type MemorizeToken,
 } from '../src/services/memorizeUtils';
 import type { MemorizationLevel } from '../src/types/gita';
@@ -81,6 +82,10 @@ export default function MemorizeScreen() {
     [tokens, sessionLevel, shloka?.id]
   );
   const lines = useMemo(() => splitIntoLines(tokens), [tokens]);
+  const translitMap = useMemo(
+    () => (shloka ? buildWordTranslitMap(shloka.sanskrit, shloka.transliteration) : {}),
+    [shloka?.id]
+  );
 
   function friendlyError(msg: string): string {
     if (msg.includes('API key')) return 'Sarvam API key not set. Add it in Settings.';
@@ -222,21 +227,27 @@ export default function MemorizeScreen() {
     const isBlanked = blanks.blankedIndices.has(token.wordIndex);
     const isRevealed = revealedIndices.has(token.wordIndex);
     const allRevealed = showCheck;
+    const translit = translitMap[token.wordIndex];
 
     // Show full word
     if (!isBlanked || allRevealed || isRevealed) {
       const highlight = isBlanked && (allRevealed || isRevealed);
       return (
-        <Text
-          key={key}
-          style={[
-            styles.wordText,
-            { color: colors.sanskritText, fontSize: fonts.sanskrit, lineHeight: fonts.sanskrit * 1.8 },
-            highlight && { backgroundColor: colors.saffronPale },
-          ]}
-        >
-          {token.text}
-        </Text>
+        <View key={key} style={[styles.wordGroup, highlight && { backgroundColor: colors.saffronPale, borderRadius: 6 }]}>
+          <Text
+            style={[
+              styles.wordText,
+              { color: colors.sanskritText, fontSize: fonts.sanskrit, lineHeight: fonts.sanskrit * 1.6 },
+            ]}
+          >
+            {token.text}
+          </Text>
+          {translit && (
+            <Text style={[styles.wordTranslit, { color: colors.textMuted, fontSize: fonts.caption }]}>
+              {translit}
+            </Text>
+          )}
+        </View>
       );
     }
 
@@ -695,7 +706,9 @@ const styles = StyleSheet.create({
   tokenContainer: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
   lineBreak: { width: '100%', height: SPACING.sm },
   separatorText: { fontSize: FONT_SIZES.body },
+  wordGroup: { alignItems: 'center', marginHorizontal: 1 },
   wordText: { fontWeight: '500' },
+  wordTranslit: { fontStyle: 'italic' },
 
   // Blank chips
   blankChip: { borderWidth: 1.5, borderRadius: 8, paddingHorizontal: SPACING.sm, paddingVertical: 2, marginVertical: 2 },
