@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { UserProgress, PronunciationScore } from '../types/gita';
+import type { UserProgress, PronunciationScore, MemorizationLevel } from '../types/gita';
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
@@ -19,6 +19,8 @@ interface ProgressStore extends UserProgress {
   markDayComplete: (day: number) => void;
   addPronunciationScore: (shlokaId: string, score: number) => void;
   getBestScore: (shlokaId: string) => number | null;
+  getMemorizationLevel: (shlokaId: string) => MemorizationLevel;
+  updateMemorizationLevel: (shlokaId: string, level: MemorizationLevel) => void;
   resetProgress: () => void;
 }
 
@@ -29,6 +31,7 @@ const INITIAL_STATE: UserProgress = {
   best_streak: 0,
   last_read_date: null,
   pronunciation_scores: [],
+  memorization_entries: [],
 };
 
 export const useProgressStore = create<ProgressStore>()(
@@ -56,6 +59,33 @@ export const useProgressStore = create<ProgressStore>()(
         );
         if (scores.length === 0) return null;
         return Math.max(...scores.map((s) => s.score));
+      },
+
+      getMemorizationLevel: (shlokaId: string): MemorizationLevel => {
+        const entry = get().memorization_entries.find(e => e.shloka_id === shlokaId);
+        return entry ? entry.level : 1;
+      },
+
+      updateMemorizationLevel: (shlokaId: string, level: MemorizationLevel) => {
+        const state = get();
+        const today = getTodayString();
+        const existing = state.memorization_entries.find(e => e.shloka_id === shlokaId);
+        if (existing) {
+          set({
+            memorization_entries: state.memorization_entries.map(e =>
+              e.shloka_id === shlokaId
+                ? { ...e, level: Math.max(e.level, level) as MemorizationLevel, last_practiced: today }
+                : e
+            ),
+          });
+        } else {
+          set({
+            memorization_entries: [
+              ...state.memorization_entries,
+              { shloka_id: shlokaId, level, last_practiced: today },
+            ],
+          });
+        }
       },
 
       markDayComplete: (day: number) => {

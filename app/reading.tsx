@@ -259,21 +259,37 @@ export default function ReadingScreen() {
             </Text>
           )}
         </View>
-        {/* Practice button */}
-        <Pressable
-          onPress={() => router.push(`/practice?day=${displayDay}`)}
-          style={({ pressed }) => [
-            styles.practiceHeaderButton,
-            { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
-            pressed && { opacity: 0.7 },
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Practice pronunciation"
-        >
-          <Text style={[styles.practiceHeaderText, { color: colors.saffron }]}>
-            Practice
-          </Text>
-        </Pressable>
+        {/* Practice + Memorize buttons */}
+        <View style={styles.headerButtons}>
+          <Pressable
+            onPress={() => router.push(`/practice?day=${displayDay}`)}
+            style={({ pressed }) => [
+              styles.practiceHeaderButton,
+              { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
+              pressed && { opacity: 0.7 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Practice pronunciation"
+          >
+            <Text style={[styles.practiceHeaderText, { color: colors.saffron }]}>
+              Practice
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push(`/memorize?day=${displayDay}`)}
+            style={({ pressed }) => [
+              styles.practiceHeaderButton,
+              { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
+              pressed && { opacity: 0.7 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Memorize this reading"
+          >
+            <Text style={[styles.practiceHeaderText, { color: colors.saffron }]}>
+              Memorize
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Shlokas */}
@@ -365,8 +381,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2,
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
+  },
   practiceHeaderButton: {
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.sm + 2,
     paddingVertical: SPACING.sm,
     borderRadius: 12,
     borderWidth: 1.5,

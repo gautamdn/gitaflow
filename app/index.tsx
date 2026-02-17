@@ -124,6 +124,28 @@ export default function HomeScreen() {
           </View>
         </Pressable>
 
+        {/* Memorize CTA */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.practiceButton,
+            { backgroundColor: colors.surface, borderColor: colors.saffron },
+            pressed && { opacity: 0.85 },
+          ]}
+          onPress={() => router.push('/memorize')}
+          accessibilityRole="button"
+          accessibilityLabel="Memorize shlokas"
+        >
+          <Text style={styles.practiceIcon}>{'\u{1F9E0}'}</Text>
+          <View style={styles.practiceTextContainer}>
+            <Text style={[styles.practiceTitle, { color: colors.textPrimary }]}>
+              Memorize Shlokas
+            </Text>
+            <Text style={[styles.practiceSubtitle, { color: colors.textMuted }]}>
+              Practice recalling verses from memory
+            </Text>
+          </View>
+        </Pressable>
+
         {/* Nav links */}
         <View style={styles.navRow}>
           <Pressable

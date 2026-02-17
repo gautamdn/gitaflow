@@ -61,6 +61,14 @@ export interface PronunciationScore {
   date: string;
 }
 
+export type MemorizationLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface MemorizationEntry {
+  shloka_id: string;
+  level: MemorizationLevel;
+  last_practiced: string;
+}
+
 export interface UserProgress {
   current_day: number;
   completed_readings: number[];
@@ -68,4 +76,5 @@ export interface UserProgress {
   best_streak: number;
   last_read_date: string | null;
   pronunciation_scores: PronunciationScore[];
+  memorization_entries: MemorizationEntry[];
 }
