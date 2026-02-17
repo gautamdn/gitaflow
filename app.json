@@ -8,7 +8,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -33,7 +36,8 @@
         {
           "microphonePermission": "GitaFlow needs microphone access for pronunciation practice."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }

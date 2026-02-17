@@ -6,22 +6,57 @@ import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getChapter, getTotalReadings } from '../src/services/gitaData';
 
-const MILESTONES = [
-  { days: 1, label: 'First Reading', icon: '\u{1F331}' },
-  { days: 7, label: 'One Week', icon: '\u{1F525}' },
-  { days: 30, label: 'One Month', icon: '\u2B50' },
-  { days: 100, label: '100 Readings', icon: '\u{1F3C6}' },
-  { days: 239, label: 'Complete Journey', icon: '\u{1F54A}' },
+type MilestoneType = 'readings' | 'streak';
+
+interface Milestone {
+  count: number;
+  label: string;
+  sublabel: string;
+  icon: string;
+  type: MilestoneType;
+}
+
+const MILESTONES: Milestone[] = [
+  { count: 1, label: 'First Step', sublabel: 'Complete 1 reading', icon: '\u{1F331}', type: 'readings' },
+  { count: 7, label: '7-Day Streak', sublabel: 'Read 7 days in a row', icon: '\u{1F525}', type: 'streak' },
+  { count: 30, label: '30-Day Streak', sublabel: 'Read 30 days in a row', icon: '\u2B50', type: 'streak' },
+  { count: 100, label: '100-Day Streak', sublabel: 'Read 100 days in a row', icon: '\u{1F3C6}', type: 'streak' },
+  { count: 239, label: 'Complete', sublabel: 'Finish all 239 readings', icon: '\u{1F54A}', type: 'readings' },
 ];
+
+function isMilestoneAchieved(
+  milestone: Milestone,
+  completedCount: number,
+  bestStreak: number
+): boolean {
+  if (milestone.type === 'streak') return bestStreak >= milestone.count;
+  return completedCount >= milestone.count;
+}
+
+function getMilestoneProgress(
+  milestone: Milestone,
+  completedCount: number,
+  bestStreak: number
+): { current: number; target: number } {
+  if (milestone.type === 'streak') {
+    return { current: Math.min(bestStreak, milestone.count), target: milestone.count };
+  }
+  return { current: Math.min(completedCount, milestone.count), target: milestone.count };
+}
 
 export default function ProgressScreen() {
   const router = useRouter();
-  const { current_day, streak_count, completed_readings, last_read_date } =
+  const { current_day, streak_count, best_streak, completed_readings, last_read_date } =
     useProgressStore();
   const { darkMode } = useSettingsStore();
   const colors = getColors(darkMode);
   const totalReadings = getTotalReadings();
   const progressPercent = (completed_readings.length / totalReadings) * 100;
+  const effectiveBestStreak = best_streak ?? streak_count;
+
+  const achievedCount = MILESTONES.filter((m) =>
+    isMilestoneAchieved(m, completed_readings.length, effectiveBestStreak)
+  ).length;
 
   // Sort completed readings descending for the log
   const recentReadings = [...completed_readings].sort((a, b) => b - a).slice(0, 20);
@@ -102,24 +137,91 @@ export default function ProgressScreen() {
           </Text>
         </View>
 
-        {/* Milestones */}
+        {/* Milestone Badges */}
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-          Milestones
+          Milestones ({achievedCount}/{MILESTONES.length})
         </Text>
-        <View style={[styles.milestonesCard, { backgroundColor: colors.surface }]}>
+
+        <View style={[styles.badgesContainer, { backgroundColor: colors.surface }]}>
+          {/* Badge row */}
+          <View style={styles.badgeRow}>
+            {MILESTONES.map((milestone, index) => {
+              const achieved = isMilestoneAchieved(
+                milestone,
+                completed_readings.length,
+                effectiveBestStreak
+              );
+              return (
+                <View key={milestone.count} style={styles.badgeWrapper}>
+                  {/* Connecting line (except first) */}
+                  {index > 0 && (
+                    <View
+                      style={[
+                        styles.badgeConnector,
+                        {
+                          backgroundColor: isMilestoneAchieved(
+                            MILESTONES[index - 1],
+                            completed_readings.length,
+                            effectiveBestStreak
+                          )
+                            ? colors.saffron
+                            : colors.saffronPale,
+                        },
+                      ]}
+                    />
+                  )}
+                  <View
+                    style={[
+                      styles.badge,
+                      {
+                        backgroundColor: achieved ? colors.saffron : colors.saffronPale,
+                        borderColor: achieved ? colors.saffron : colors.saffronPale,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.badgeIcon, !achieved && styles.badgeIconDim]}>
+                      {milestone.icon}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+
+          {/* Milestone detail cards */}
           {MILESTONES.map((milestone) => {
-            const achieved = completed_readings.length >= milestone.days;
+            const achieved = isMilestoneAchieved(
+              milestone,
+              completed_readings.length,
+              effectiveBestStreak
+            );
+            const { current, target } = getMilestoneProgress(
+              milestone,
+              completed_readings.length,
+              effectiveBestStreak
+            );
+            const percent = Math.round((current / target) * 100);
+
             return (
               <View
-                key={milestone.days}
+                key={milestone.count}
                 style={[
-                  styles.milestoneRow,
+                  styles.milestoneCard,
                   { borderBottomColor: colors.saffronPale },
                 ]}
               >
-                <Text style={[styles.milestoneIcon, !achieved && styles.milestoneIconDim]}>
-                  {milestone.icon}
-                </Text>
+                <View
+                  style={[
+                    styles.milestoneIconCircle,
+                    {
+                      backgroundColor: achieved ? colors.saffron : colors.saffronPale,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.milestoneEmoji, !achieved && styles.badgeIconDim]}>
+                    {milestone.icon}
+                  </Text>
+                </View>
                 <View style={styles.milestoneInfo}>
                   <Text
                     style={[
@@ -129,17 +231,52 @@ export default function ProgressScreen() {
                   >
                     {milestone.label}
                   </Text>
-                  <Text style={[styles.milestoneDays, { color: colors.textMuted }]}>
-                    {milestone.days} {milestone.days === 1 ? 'reading' : 'readings'}
+                  <Text style={[styles.milestoneSublabel, { color: colors.textMuted }]}>
+                    {milestone.sublabel}
                   </Text>
+                  {/* Mini progress bar */}
+                  {!achieved && (
+                    <View style={[styles.miniProgressBar, { backgroundColor: colors.saffronPale }]}>
+                      <View
+                        style={[
+                          styles.miniProgressFill,
+                          {
+                            width: `${Math.max(percent, 2)}%`,
+                            backgroundColor: colors.saffron,
+                          },
+                        ]}
+                      />
+                    </View>
+                  )}
                 </View>
-                <Text style={[styles.milestoneCheck, { color: colors.saffron }]}>
-                  {achieved ? '\u2713' : ''}
-                </Text>
+                {achieved ? (
+                  <View style={[styles.achievedBadge, { backgroundColor: '#E8F5E9' }]}>
+                    <Text style={styles.achievedCheck}>{'\u2713'}</Text>
+                  </View>
+                ) : (
+                  <Text style={[styles.milestonePercent, { color: colors.textMuted }]}>
+                    {percent}%
+                  </Text>
+                )}
               </View>
             );
           })}
         </View>
+
+        {/* Best streak callout */}
+        {effectiveBestStreak > 0 && (
+          <View style={[styles.bestStreakCard, { backgroundColor: colors.surface }]}>
+            <Text style={styles.bestStreakIcon}>{'\u{1F525}'}</Text>
+            <View style={styles.bestStreakInfo}>
+              <Text style={[styles.bestStreakLabel, { color: colors.textPrimary }]}>
+                Best Streak
+              </Text>
+              <Text style={[styles.bestStreakValue, { color: colors.saffron }]}>
+                {effectiveBestStreak} {effectiveBestStreak === 1 ? 'day' : 'days'}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Recent readings log */}
         {recentReadings.length > 0 && (
@@ -274,12 +411,56 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
     marginLeft: SPACING.xs,
   },
-  milestonesCard: {
+
+  // Badge row
+  badgesContainer: {
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: SPACING.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  milestoneRow: {
+  badgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+  },
+  badgeWrapper: {
+    alignItems: 'center',
+    position: 'relative',
+    flex: 1,
+  },
+  badgeConnector: {
+    position: 'absolute',
+    top: 24,
+    right: '50%',
+    left: '-50%',
+    height: 3,
+    borderRadius: 1.5,
+    zIndex: -1,
+  },
+  badge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+  badgeIcon: {
+    fontSize: 22,
+  },
+  badgeIconDim: {
+    opacity: 0.35,
+  },
+
+  // Milestone detail cards
+  milestoneCard: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.md,
@@ -287,12 +468,16 @@ const styles = StyleSheet.create({
     minHeight: TOUCH_TARGET.minHeight,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  milestoneIcon: {
-    fontSize: 24,
+  milestoneIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: SPACING.md,
   },
-  milestoneIconDim: {
-    opacity: 0.3,
+  milestoneEmoji: {
+    fontSize: 20,
   },
   milestoneInfo: {
     flex: 1,
@@ -301,15 +486,72 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.body,
     fontWeight: '600',
   },
-  milestoneDays: {
+  milestoneSublabel: {
     fontSize: FONT_SIZES.caption,
     marginTop: 2,
   },
-  milestoneCheck: {
-    fontSize: 20,
-    fontWeight: '700',
+  miniProgressBar: {
+    width: '100%',
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginTop: SPACING.xs,
+  },
+  miniProgressFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  milestonePercent: {
+    fontSize: FONT_SIZES.caption,
+    fontWeight: '600',
+    marginLeft: SPACING.sm,
+    minWidth: 36,
+    textAlign: 'right',
+  },
+  achievedBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: SPACING.sm,
   },
+  achievedCheck: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  // Best streak
+  bestStreakCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  bestStreakIcon: {
+    fontSize: 32,
+    marginRight: SPACING.md,
+  },
+  bestStreakInfo: {
+    flex: 1,
+  },
+  bestStreakLabel: {
+    fontSize: FONT_SIZES.caption,
+    fontWeight: '500',
+  },
+  bestStreakValue: {
+    fontSize: FONT_SIZES.title,
+    fontWeight: '700',
+  },
+
+  // Recent readings
   recentCard: {
     borderRadius: 16,
     overflow: 'hidden',

@@ -26,6 +26,7 @@ const INITIAL_STATE: UserProgress = {
   current_day: 1,
   completed_readings: [],
   streak_count: 0,
+  best_streak: 0,
   last_read_date: null,
   pronunciation_scores: [],
 };
@@ -83,6 +84,7 @@ export const useProgressStore = create<ProgressStore>()(
           current_day: newCurrentDay,
           completed_readings: [...state.completed_readings, day],
           streak_count: newStreak,
+          best_streak: Math.max(state.best_streak ?? 0, newStreak),
           last_read_date: today,
         });
       },

@@ -65,6 +65,7 @@ export interface UserProgress {
   current_day: number;
   completed_readings: number[];
   streak_count: number;
+  best_streak: number;
   last_read_date: string | null;
   pronunciation_scores: PronunciationScore[];
 }

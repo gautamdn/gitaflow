@@ -57,22 +57,42 @@ export default function PracticeScreen() {
 
   const bestScore = shloka ? getBestScore(shloka.id) : null;
 
+  const cancelledRef = useRef(false);
+
+  function friendlyError(msg: string): string {
+    if (msg.includes('API key')) return 'Sarvam API key not set. Add it in Settings.';
+    if (msg.includes('network') || msg.includes('Network') || msg.includes('fetch'))
+      return 'Network error — check your internet connection.';
+    if (msg.includes('TTS failed')) return 'Audio generation failed. Please try again.';
+    if (msg.includes('STT failed')) return 'Speech recognition failed. Please try again.';
+    if (msg.includes('nothing detected')) return 'No speech detected. Try speaking louder or closer to the mic.';
+    return msg || 'Something went wrong. Please try again.';
+  }
+
   // Play reference audio
   const handleListen = useCallback(async () => {
     if (!shloka) return;
     setError(null);
 
+    // If playing, stop instantly
     if (isPlaying && soundRef.current) {
-      await soundRef.current.stopAsync();
-      await soundRef.current.unloadAsync();
-      soundRef.current = null;
       setIsPlaying(false);
+      const s = soundRef.current;
+      soundRef.current = null;
+      s.stopAsync().then(() => s.unloadAsync());
       return;
     }
 
+    // If loading, cancel
+    if (isLoadingAudio) {
+      cancelledRef.current = true;
+      setIsLoadingAudio(false);
+      return;
+    }
+
+    cancelledRef.current = false;
     setIsLoadingAudio(true);
     try {
-      // Configure audio for playback
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
@@ -80,12 +100,19 @@ export default function PracticeScreen() {
 
       const audioBase64 = await textToSpeech(shloka.sanskrit, { pace });
 
-      // Play from data URI
+      if (cancelledRef.current) return;
+
       const dataUri = `data:audio/wav;base64,${audioBase64}`;
       const { sound } = await Audio.Sound.createAsync(
         { uri: dataUri },
         { shouldPlay: true }
       );
+
+      if (cancelledRef.current) {
+        sound.unloadAsync();
+        return;
+      }
+
       soundRef.current = sound;
       setIsPlaying(true);
 
@@ -97,11 +124,13 @@ export default function PracticeScreen() {
         }
       });
     } catch (err: any) {
-      setError(err.message ?? 'Failed to play audio');
+      if (!cancelledRef.current) {
+        setError(friendlyError(err.message ?? ''));
+      }
     } finally {
       setIsLoadingAudio(false);
     }
-  }, [shloka, isPlaying, pace]);
+  }, [shloka, isPlaying, isLoadingAudio, pace]);
 
   // Start/stop recording
   const handleRecord = useCallback(async () => {
@@ -128,7 +157,7 @@ export default function PracticeScreen() {
         setResult(scoreResult);
         addPronunciationScore(shloka.id, scoreResult.score);
       } catch (err: any) {
-        setError(err.message ?? 'Failed to process recording');
+        setError(friendlyError(err.message ?? ''));
       } finally {
         setIsProcessing(false);
       }
@@ -164,7 +193,7 @@ export default function PracticeScreen() {
       setIsRecording(true);
       setResult(null);
     } catch (err: any) {
-      setError(err.message ?? 'Failed to start recording');
+      setError(friendlyError(err.message ?? ''));
     }
   }, [isRecording, shloka, addPronunciationScore]);
 
@@ -320,14 +349,13 @@ export default function PracticeScreen() {
         {/* Listen button */}
         <Pressable
           onPress={handleListen}
-          disabled={isLoadingAudio}
           style={({ pressed }) => [
             styles.actionButton,
             { backgroundColor: colors.saffron },
             pressed && { opacity: 0.85 },
           ]}
           accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Stop listening' : 'Listen to shloka'}
+          accessibilityLabel={isPlaying ? 'Stop listening' : isLoadingAudio ? 'Cancel loading' : 'Listen to shloka'}
         >
           {isLoadingAudio ? (
             <ActivityIndicator size="small" color="#FFFFFF" />

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -11,6 +11,14 @@ import { textToSpeech } from '../src/services/sarvamAI';
 import type { Shloka } from '../src/types/gita';
 import type { ThemeColors } from '../src/constants/theme';
 
+function friendlyAudioError(msg: string): string {
+  if (msg.includes('API key')) return 'Sarvam API key not set. Add it in Settings.';
+  if (msg.includes('network') || msg.includes('Network') || msg.includes('fetch'))
+    return 'Network error — check your internet connection.';
+  if (msg.includes('TTS failed')) return 'Audio generation failed. Please try again.';
+  return 'Could not play audio. Please try again.';
+}
+
 function AudioButton({
   shloka,
   colors,
@@ -20,69 +28,84 @@ function AudioButton({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const cancelledRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   const handlePlay = useCallback(async () => {
     setError(null);
 
-    // If currently playing, stop
-    if (isPlaying && sound) {
-      await sound.stopAsync();
-      await sound.unloadAsync();
-      setSound(null);
+    // If currently playing, stop instantly
+    if (isPlaying && soundRef.current) {
       setIsPlaying(false);
+      const s = soundRef.current;
+      soundRef.current = null;
+      s.stopAsync().then(() => s.unloadAsync());
       return;
     }
 
+    // If loading, cancel the pending request
+    if (isLoading) {
+      cancelledRef.current = true;
+      setIsLoading(false);
+      return;
+    }
+
+    cancelledRef.current = false;
     setIsLoading(true);
     try {
-      // Configure audio mode for playback
       await Audio.setAudioModeAsync({
         playsInSilentModeIOS: true,
         staysActiveInBackground: false,
       });
 
-      // Generate audio from Sanskrit text via Sarvam TTS
       const audioBase64 = await textToSpeech(shloka.sanskrit);
 
-      // Play from data URI
+      // If user cancelled while we were fetching, don't play
+      if (cancelledRef.current) return;
+
       const dataUri = `data:audio/wav;base64,${audioBase64}`;
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: dataUri },
         { shouldPlay: true }
       );
-      setSound(newSound);
+
+      if (cancelledRef.current) {
+        newSound.unloadAsync();
+        return;
+      }
+
+      soundRef.current = newSound;
       setIsPlaying(true);
 
-      // Listen for playback completion
       newSound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
           setIsPlaying(false);
           newSound.unloadAsync();
-          setSound(null);
+          soundRef.current = null;
         }
       });
     } catch (err: any) {
-      setError(err.message ?? 'Failed to play audio');
+      if (!cancelledRef.current) {
+        setError(friendlyAudioError(err.message ?? ''));
+      }
       setIsPlaying(false);
     } finally {
       setIsLoading(false);
     }
-  }, [shloka.sanskrit, isPlaying, sound]);
+  }, [shloka.sanskrit, isPlaying, isLoading]);
 
   return (
     <View style={styles.audioButtonContainer}>
       <Pressable
         onPress={handlePlay}
-        disabled={isLoading}
         style={({ pressed }) => [
           styles.audioButton,
           { backgroundColor: colors.saffronPale, borderColor: colors.saffron },
           pressed && { opacity: 0.7 },
         ]}
         accessibilityRole="button"
-        accessibilityLabel={isPlaying ? 'Stop audio' : 'Play shloka audio'}
+        accessibilityLabel={isPlaying ? 'Stop audio' : isLoading ? 'Cancel loading' : 'Play shloka audio'}
       >
         {isLoading ? (
           <ActivityIndicator size="small" color={colors.saffron} />
