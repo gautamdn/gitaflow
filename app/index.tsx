@@ -146,6 +146,28 @@ export default function HomeScreen() {
           </View>
         </Pressable>
 
+        {/* Ask Gita CTA */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.practiceButton,
+            { backgroundColor: colors.surface, borderColor: colors.saffron },
+            pressed && { opacity: 0.85 },
+          ]}
+          onPress={() => router.push('/ask-gita')}
+          accessibilityRole="button"
+          accessibilityLabel="Ask the Gita for guidance"
+        >
+          <Text style={styles.practiceIcon}>{'\u{1F54A}'}</Text>
+          <View style={styles.practiceTextContainer}>
+            <Text style={[styles.practiceTitle, { color: colors.textPrimary }]}>
+              Ask the Gita
+            </Text>
+            <Text style={[styles.practiceSubtitle, { color: colors.textMuted }]}>
+              What would the Bhagavad Gita say about your situation?
+            </Text>
+          </View>
+        </Pressable>
+
         {/* Nav links */}
         <View style={styles.navRow}>
           <Pressable
