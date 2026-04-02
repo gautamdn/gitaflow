@@ -19,6 +19,9 @@ function friendlyAudioError(msg: string): string {
   return 'Could not play audio. Please try again.';
 }
 
+type PaceOption = 0.5 | 0.75 | 1.0;
+const PACE_OPTIONS: PaceOption[] = [0.5, 0.75, 1.0];
+
 function AudioButton({
   shloka,
   colors,
@@ -28,6 +31,7 @@ function AudioButton({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pace, setPace] = useState<PaceOption>(1.0);
   const soundRef = useRef<Audio.Sound | null>(null);
   const cancelledRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +63,7 @@ function AudioButton({
         staysActiveInBackground: false,
       });
 
-      const audioBase64 = await textToSpeech(shloka.sanskrit);
+      const audioBase64 = await textToSpeech(shloka.sanskrit, { pace });
 
       // If user cancelled while we were fetching, don't play
       if (cancelledRef.current) return;
@@ -93,10 +97,37 @@ function AudioButton({
     } finally {
       setIsLoading(false);
     }
-  }, [shloka.sanskrit, isPlaying, isLoading]);
+  }, [shloka.sanskrit, isPlaying, isLoading, pace]);
 
   return (
     <View style={styles.audioButtonContainer}>
+      {/* Speed selector */}
+      <View style={styles.speedRow}>
+        <Text style={[styles.speedLabel, { color: colors.textSecondary }]}>Speed:</Text>
+        {PACE_OPTIONS.map((opt) => (
+          <Pressable
+            key={opt}
+            onPress={() => setPace(opt)}
+            style={[
+              styles.speedChip,
+              { borderColor: colors.saffron },
+              pace === opt && { backgroundColor: colors.saffron },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Set speed to ${opt}x`}
+          >
+            <Text
+              style={[
+                styles.speedChipText,
+                { color: pace === opt ? '#FFFFFF' : colors.saffron },
+              ]}
+            >
+              {opt}x
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
       <Pressable
         onPress={handlePlay}
         style={({ pressed }) => [
@@ -423,6 +454,26 @@ const styles = StyleSheet.create({
   audioButtonContainer: {
     alignItems: 'center',
     marginBottom: SPACING.md,
+  },
+  speedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+    gap: SPACING.xs,
+  },
+  speedLabel: {
+    fontSize: 13,
+    marginRight: SPACING.xs,
+  },
+  speedChip: {
+    paddingHorizontal: SPACING.sm + 2,
+    paddingVertical: 4,
+    borderRadius: 14,
+    borderWidth: 1.5,
+  },
+  speedChipText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   audioButton: {
     flexDirection: 'row',
