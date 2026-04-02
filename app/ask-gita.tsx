@@ -198,7 +198,9 @@ export default function AskGitaScreen() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GitaAdviceResult[] | null>(null);
   const [noMatch, setNoMatch] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   const suggestedTopics = getSuggestedTopics();
 
@@ -206,14 +208,24 @@ export default function AskGitaScreen() {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    const found = findAdvice(trimmed, 1);
-    if (found.length > 0) {
-      setResults(found);
-      setNoMatch(false);
-    } else {
-      setResults(null);
-      setNoMatch(true);
-    }
+    setIsSearching(true);
+    setResults(null);
+    setNoMatch(false);
+
+    // Brief delay so the user sees the loading state
+    setTimeout(() => {
+      const found = findAdvice(trimmed, 1);
+      if (found.length > 0) {
+        setResults(found);
+        setNoMatch(false);
+      } else {
+        setResults(null);
+        setNoMatch(true);
+      }
+      setIsSearching(false);
+      // Scroll to results
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    }, 400);
   }, []);
 
   const handleTopicPress = useCallback((topicId: string) => {
@@ -260,6 +272,7 @@ export default function AskGitaScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView
+          ref={scrollRef}
           style={styles.flex}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -313,14 +326,28 @@ export default function AskGitaScreen() {
                   styles.searchButton,
                   { backgroundColor: colors.saffron },
                   pressed && { opacity: 0.85 },
-                  !query.trim() && { opacity: 0.5 },
+                  (!query.trim() || isSearching) && { opacity: 0.5 },
                 ]}
-                disabled={!query.trim()}
+                disabled={!query.trim() || isSearching}
               >
-                <Text style={styles.searchButtonText}>Find Guidance</Text>
+                {isSearching ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.searchButtonText}>Find Guidance</Text>
+                )}
               </Pressable>
             </View>
           </View>
+
+          {/* Searching indicator */}
+          {isSearching && (
+            <View style={styles.searchingContainer}>
+              <ActivityIndicator size="small" color={colors.saffron} />
+              <Text style={[styles.searchingText, { color: colors.textSecondary, fontSize: fonts.body }]}>
+                Finding relevant verses...
+              </Text>
+            </View>
+          )}
 
           {/* Results */}
           {results && results.map((result, i) => (
@@ -562,5 +589,15 @@ const styles = StyleSheet.create({
   },
   topicPrompt: {
     marginTop: 2,
+  },
+  searchingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: SPACING.xl,
+    gap: SPACING.sm,
+  },
+  searchingText: {
+    fontWeight: '500',
   },
 });

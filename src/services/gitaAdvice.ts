@@ -209,7 +209,9 @@ export function getSuggestedTopics(): { id: string; label: string; prompt: strin
  * Returns the top matches (up to `limit`).
  */
 export function findAdvice(query: string, limit = 2): GitaAdviceResult[] {
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const words = query.toLowerCase().split(/\s+/).filter((w) => w.length >= 3);
+
+  if (words.length === 0) return [];
 
   // Score each topic by keyword overlap
   const scored = TOPIC_MAPPINGS.map((topic) => {
@@ -225,7 +227,7 @@ export function findAdvice(query: string, limit = 2): GitaAdviceResult[] {
     }
     return { topic, score };
   })
-    .filter(({ score }) => score > 0)
+    .filter(({ score }) => score >= 3)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 
