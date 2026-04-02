@@ -206,7 +206,7 @@ export default function AskGitaScreen() {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    const found = findAdvice(trimmed, 2);
+    const found = findAdvice(trimmed, 1);
     if (found.length > 0) {
       setResults(found);
       setNoMatch(false);
