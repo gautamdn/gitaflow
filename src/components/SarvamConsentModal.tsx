@@ -81,7 +81,7 @@ export function SarvamConsentModal() {
             </Text>
           </Pressable>
           <Pressable
-            onPress={() => Linking.openURL('https://gautamdn.github.io/gitaflow/privacy-policy.html')}
+            onPress={() => Linking.openURL('https://gist.github.com/gautamdn/e69083c28914e5839cdbc19bc6f66575')}
             accessibilityRole="link"
           >
             <Text style={[styles.link, { color: colors.saffron }]}>
