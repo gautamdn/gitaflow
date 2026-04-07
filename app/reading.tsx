@@ -8,6 +8,7 @@ import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import { textToSpeech } from '../src/services/sarvamAI';
+import { ensureSarvamConsent } from '../src/utils/sarvamConsent';
 import type { Shloka } from '../src/types/gita';
 import type { ThemeColors } from '../src/constants/theme';
 
@@ -58,6 +59,8 @@ function AudioButton({
         playsInSilentModeIOS: true,
         staysActiveInBackground: false,
       });
+
+      if (!(await ensureSarvamConsent())) return;
 
       const audioBase64 = await textToSpeech(shloka.sanskrit);
 
