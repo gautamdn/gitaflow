@@ -20,6 +20,7 @@ import { textToSpeech, speechToText } from '../src/services/sarvamAI';
 import { ensureSarvamConsent } from '../src/utils/sarvamConsent';
 import { scorePronunciation, buildTransliterationMap, type PronunciationResult } from '../src/services/pronunciationScore';
 import { WordDiffDisplay } from '../src/components/WordDiffDisplay';
+import { RecordingIndicator } from '../src/components/RecordingIndicator';
 
 type PaceOption = 0.5 | 0.75 | 1.0;
 
@@ -312,6 +313,8 @@ export default function PracticeScreen() {
           )}
         </View>
       </View>
+
+      <RecordingIndicator active={isRecording} />
 
       <ScrollView
         style={styles.scrollView}
