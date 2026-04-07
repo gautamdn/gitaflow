@@ -17,6 +17,7 @@ import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors, getScaledFontSizes } from
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getSuggestedTopics, findAdvice, getAdviceByTopicId } from '../src/services/gitaAdvice';
 import { textToSpeech } from '../src/services/sarvamAI';
+import { ensureSarvamConsent } from '../src/utils/sarvamConsent';
 import type { GitaAdviceResult } from '../src/services/gitaAdvice';
 import type { Shloka } from '../src/types/gita';
 import type { ThemeColors } from '../src/constants/theme';
@@ -49,6 +50,8 @@ function AudioChip({
         playsInSilentModeIOS: true,
         staysActiveInBackground: false,
       });
+      if (!(await ensureSarvamConsent())) return;
+
       const audioBase64 = await textToSpeech(shloka.sanskrit);
       const dataUri = `data:audio/wav;base64,${audioBase64}`;
       const { sound } = await Audio.Sound.createAsync(
