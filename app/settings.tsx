@@ -95,11 +95,13 @@ export default function SettingsScreen() {
     showSanskrit,
     showTransliteration,
     showTranslation,
+    sarvamConsentGranted,
     toggleDarkMode,
     setFontSize,
     toggleShowSanskrit,
     toggleShowTransliteration,
     toggleShowTranslation,
+    setSarvamConsent,
   } = useSettingsStore();
   const { resetProgress } = useProgressStore();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -238,6 +240,40 @@ export default function SettingsScreen() {
                 {apiKeySaved ? 'Saved!' : 'Save Key'}
               </Text>
             </Pressable>
+          </View>
+        </View>
+
+        {/* Privacy */}
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+          Privacy
+        </Text>
+        <View style={[styles.section, { backgroundColor: colors.surface }]}>
+          <View style={[styles.settingRow, { borderBottomWidth: 0, flexDirection: 'column', alignItems: 'stretch' }]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
+                Sarvam AI consent
+              </Text>
+              <Text style={[styles.settingValue, { color: sarvamConsentGranted ? '#4CAF50' : colors.textMuted }]}>
+                {sarvamConsentGranted ? 'Granted' : 'Not granted'}
+              </Text>
+            </View>
+            <Text style={[styles.apiKeyHint, { color: colors.textSecondary, marginTop: SPACING.sm, marginBottom: 0 }]}>
+              GitaFlow asks for your permission before sending any text or audio to Sarvam AI. The next time you tap Listen or Record, you will be asked again.
+            </Text>
+            {sarvamConsentGranted && (
+              <Pressable
+                onPress={() => setSarvamConsent(false)}
+                style={({ pressed }) => [
+                  styles.apiKeySaveButton,
+                  { backgroundColor: '#D32F2F', marginTop: SPACING.md },
+                  pressed && { opacity: 0.85 },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Revoke Sarvam AI consent"
+              >
+                <Text style={styles.apiKeySaveText}>Revoke Consent</Text>
+              </Pressable>
+            )}
           </View>
         </View>
 
