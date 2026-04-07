@@ -15,6 +15,7 @@ import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import { textToSpeech } from '../src/services/sarvamAI';
+import { ensureSarvamConsent } from '../src/utils/sarvamConsent';
 import {
   tokenizeSanskrit,
   computeBlanks,
@@ -175,6 +176,8 @@ export default function MemorizeScreen() {
         allowsRecordingIOS: false,
         playsInSilentModeIOS: true,
       });
+
+      if (!(await ensureSarvamConsent())) return;
 
       const audioBase64 = await textToSpeech(shloka.sanskrit, { pace });
 
