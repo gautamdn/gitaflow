@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { getColors } from '../src/constants/theme';
 import { useSettingsStore } from '../src/store/useSettingsStore';
+import { SarvamConsentModal } from '../src/components/SarvamConsentModal';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,6 +26,7 @@ export default function RootLayout() {
           animation: 'slide_from_right',
         }}
       />
+      <SarvamConsentModal />
     </>
   );
 }
