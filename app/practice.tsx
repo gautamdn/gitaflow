@@ -17,6 +17,7 @@ import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
 import { textToSpeech, speechToText } from '../src/services/sarvamAI';
+import { ensureSarvamConsent } from '../src/utils/sarvamConsent';
 import { scorePronunciation, buildTransliterationMap, type PronunciationResult } from '../src/services/pronunciationScore';
 import { WordDiffDisplay } from '../src/components/WordDiffDisplay';
 
@@ -97,6 +98,11 @@ export default function PracticeScreen() {
         playsInSilentModeIOS: true,
       });
 
+      if (!(await ensureSarvamConsent())) {
+        setPlayingWord(null);
+        return;
+      }
+
       const audioBase64 = await textToSpeech(word, { pace: 0.65 });
       const dataUri = `data:audio/wav;base64,${audioBase64}`;
       const { sound } = await Audio.Sound.createAsync(
@@ -146,6 +152,8 @@ export default function PracticeScreen() {
         playsInSilentModeIOS: true,
       });
 
+      if (!(await ensureSarvamConsent())) return;
+
       const audioBase64 = await textToSpeech(shloka.sanskrit, { pace });
 
       if (cancelledRef.current) return;
@@ -194,6 +202,7 @@ export default function PracticeScreen() {
       if (!uri || !shloka) return;
 
       // Process the recording
+      if (!(await ensureSarvamConsent())) return;
       setIsProcessing(true);
       try {
         const sttResult = await speechToText(uri);
