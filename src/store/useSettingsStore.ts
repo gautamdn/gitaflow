@@ -10,12 +10,14 @@ interface SettingsState {
   showSanskrit: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
+  sarvamConsentGranted: boolean;
 
   toggleDarkMode: () => void;
   setFontSize: (size: FontSizeOption) => void;
   toggleShowSanskrit: () => void;
   toggleShowTransliteration: () => void;
   toggleShowTranslation: () => void;
+  setSarvamConsent: (granted: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -26,6 +28,7 @@ export const useSettingsStore = create<SettingsState>()(
       showSanskrit: true,
       showTransliteration: true,
       showTranslation: true,
+      sarvamConsentGranted: false,
 
       toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
       setFontSize: (size) => set({ fontSize: size }),
@@ -34,6 +37,7 @@ export const useSettingsStore = create<SettingsState>()(
         set((s) => ({ showTransliteration: !s.showTransliteration })),
       toggleShowTranslation: () =>
         set((s) => ({ showTranslation: !s.showTranslation })),
+      setSarvamConsent: (granted) => set({ sarvamConsentGranted: granted }),
     }),
     {
       name: 'gitaflow-settings',
