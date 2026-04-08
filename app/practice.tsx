@@ -202,8 +202,8 @@ export default function PracticeScreen() {
 
       if (!uri || !shloka) return;
 
-      // Process the recording
-      if (!(await ensureSarvamConsent())) return;
+      // Process the recording. Consent was already obtained in the start
+      // branch below before recording began, so no second prompt is needed.
       setIsProcessing(true);
       try {
         const sttResult = await speechToText(uri);
@@ -222,7 +222,12 @@ export default function PracticeScreen() {
       return;
     }
 
-    // Start recording
+    // Start recording. Consent must be obtained BEFORE the microphone turns
+    // on — Apple App Review (5.1.1(i)) requires permission for sending data
+    // to a third party to be granted before the data is even captured, not
+    // just before it is transmitted.
+    if (!(await ensureSarvamConsent())) return;
+
     try {
       const permission = await Audio.requestPermissionsAsync();
       if (!permission.granted) {
