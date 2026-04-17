@@ -1,10 +1,22 @@
 import * as SecureStore from 'expo-secure-store';
 
 const SARVAM_API_BASE = 'https://api.sarvam.ai';
+const PROXY_BASE = 'https://gitaflow-proxy.gautamfowl.workers.dev';
 const API_KEY_STORAGE_KEY = 'gitaflow-sarvam-api-key';
+const DEVICE_ID_KEY = 'gitaflow-device-id';
 
 // Cache generated audio to avoid redundant API calls
 const audioCache = new Map<string, string>();
+
+/** Get or create a stable anonymous device ID for proxy rate limiting. */
+async function getDeviceId(): Promise<string> {
+  let id = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 export async function getSarvamApiKey(): Promise<string | null> {
   return SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
@@ -20,7 +32,10 @@ export async function clearSarvamApiKey(): Promise<void> {
 
 /**
  * Generate speech audio from Sanskrit text using Sarvam TTS.
- * Uses hi-IN (Hindi) as the closest supported language for Sanskrit Devanagari text.
+ *
+ * If the user has a BYO Sarvam API key, calls Sarvam directly.
+ * Otherwise, routes through the GitaFlow proxy (rate-limited).
+ *
  * Returns a base64-encoded WAV audio string.
  */
 export async function textToSpeech(
@@ -38,25 +53,44 @@ export async function textToSpeech(
   if (cached) return cached;
 
   const apiKey = await getSarvamApiKey();
-  if (!apiKey) {
-    throw new Error('Sarvam API key not configured. Please add it in Settings.');
+  const body = JSON.stringify({
+    inputs: [text],
+    target_language_code: 'hi-IN',
+    speaker: options?.speaker ?? 'anushka',
+    pace: options?.pace ?? 0.85,
+    pitch: options?.pitch ?? 0.0,
+    model: options?.model ?? 'bulbul:v2',
+  });
+
+  let response: Response;
+
+  if (apiKey) {
+    // BYO key — call Sarvam directly (unlimited)
+    response = await fetch(`${SARVAM_API_BASE}/text-to-speech`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-subscription-key': apiKey,
+      },
+      body,
+    });
+  } else {
+    // Proxy path — rate-limited, no key needed
+    const deviceId = await getDeviceId();
+    response = await fetch(`${PROXY_BASE}/tts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
+      },
+      body,
+    });
   }
 
-  const response = await fetch(`${SARVAM_API_BASE}/text-to-speech`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-subscription-key': apiKey,
-    },
-    body: JSON.stringify({
-      inputs: [text],
-      target_language_code: 'hi-IN',
-      speaker: options?.speaker ?? 'anushka',
-      pace: options?.pace ?? 0.85,
-      pitch: options?.pitch ?? 0.0,
-      model: options?.model ?? 'bulbul:v2',
-    }),
-  });
+  if (response.status === 429) {
+    const data = await response.json();
+    throw new Error(data.message ?? 'Daily limit reached. Add your own Sarvam AI key in Settings for unlimited access.');
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -76,6 +110,10 @@ export async function textToSpeech(
 
 /**
  * Transcribe speech audio using Sarvam STT.
+ *
+ * If the user has a BYO Sarvam API key, calls Sarvam directly.
+ * Otherwise, routes through the GitaFlow proxy (rate-limited).
+ *
  * Accepts a file URI (from expo-av recording).
  * Returns the transcribed text.
  */
@@ -87,14 +125,8 @@ export async function speechToText(
   }
 ): Promise<{ transcript: string; language_code: string }> {
   const apiKey = await getSarvamApiKey();
-  if (!apiKey) {
-    throw new Error('Sarvam API key not configured. Please add it in Settings.');
-  }
 
-  // Read audio file and create form data
   const formData = new FormData();
-
-  // For React Native, we need to append the file as a blob
   formData.append('file', {
     uri: audioFileUri,
     type: 'audio/m4a',
@@ -103,13 +135,33 @@ export async function speechToText(
   formData.append('language_code', options?.language ?? 'hi-IN');
   formData.append('model', options?.model ?? 'saarika:v2.5');
 
-  const response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
-    method: 'POST',
-    headers: {
-      'api-subscription-key': apiKey,
-    },
-    body: formData,
-  });
+  let response: Response;
+
+  if (apiKey) {
+    // BYO key — call Sarvam directly (unlimited)
+    response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
+      method: 'POST',
+      headers: {
+        'api-subscription-key': apiKey,
+      },
+      body: formData,
+    });
+  } else {
+    // Proxy path — rate-limited, no key needed
+    const deviceId = await getDeviceId();
+    response = await fetch(`${PROXY_BASE}/stt`, {
+      method: 'POST',
+      headers: {
+        'X-Device-Id': deviceId,
+      },
+      body: formData,
+    });
+  }
+
+  if (response.status === 429) {
+    const data = await response.json();
+    throw new Error(data.message ?? 'Daily limit reached. Add your own Sarvam AI key in Settings for unlimited access.');
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
