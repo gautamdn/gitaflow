@@ -1,10 +1,23 @@
 import * as SecureStore from 'expo-secure-store';
 
 const SARVAM_API_BASE = 'https://api.sarvam.ai';
+const PROXY_BASE = 'https://gitaflow-proxy.gautamdn.workers.dev';
 const API_KEY_STORAGE_KEY = 'gitaflow-sarvam-api-key';
+const DEVICE_ID_KEY = 'gitaflow-device-id';
 
-// Cache generated audio to avoid redundant API calls
 const audioCache = new Map<string, string>();
+
+async function getDeviceId(): Promise<string> {
+  let id = await SecureStore.getItemAsync(DEVICE_ID_KEY);
+  if (!id) {
+    id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+    await SecureStore.setItemAsync(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 export async function getSarvamApiKey(): Promise<string | null> {
   return SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
@@ -18,11 +31,6 @@ export async function clearSarvamApiKey(): Promise<void> {
   await SecureStore.deleteItemAsync(API_KEY_STORAGE_KEY);
 }
 
-/**
- * Generate speech audio from Sanskrit text using Sarvam TTS.
- * Uses hi-IN (Hindi) as the closest supported language for Sanskrit Devanagari text.
- * Returns a base64-encoded WAV audio string.
- */
 export async function textToSpeech(
   text: string,
   options?: {
@@ -32,32 +40,46 @@ export async function textToSpeech(
     model?: string;
   }
 ): Promise<string> {
-  // Check cache first
   const cacheKey = `${text}_${options?.pace ?? 1.0}_${options?.speaker ?? 'anushka'}`;
   const cached = audioCache.get(cacheKey);
   if (cached) return cached;
 
   const apiKey = await getSarvamApiKey();
-  if (!apiKey) {
-    throw new Error('Sarvam API key not configured. Please add it in Settings.');
-  }
-
-  const response = await fetch(`${SARVAM_API_BASE}/text-to-speech`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-subscription-key': apiKey,
-    },
-    body: JSON.stringify({
-      inputs: [text],
-      target_language_code: 'hi-IN',
-      speaker: options?.speaker ?? 'anushka',
-      pace: options?.pace ?? 0.85,
-      pitch: options?.pitch ?? 0.0,
-      model: options?.model ?? 'bulbul:v2',
-    }),
+  const ttsBody = JSON.stringify({
+    inputs: [text],
+    target_language_code: 'hi-IN',
+    speaker: options?.speaker ?? 'anushka',
+    pace: options?.pace ?? 0.85,
+    pitch: options?.pitch ?? 0.0,
+    model: options?.model ?? 'bulbul:v2',
   });
 
+  let response: Response;
+
+  if (apiKey) {
+    response = await fetch(`${SARVAM_API_BASE}/text-to-speech`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-subscription-key': apiKey,
+      },
+      body: ttsBody,
+    });
+  } else {
+    const deviceId = await getDeviceId();
+    response = await fetch(`${PROXY_BASE}/tts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId,
+      },
+      body: ttsBody,
+    });
+  }
+
+  if (response.status === 429) {
+    throw new Error('Daily limit reached. Add your own Sarvam AI key in Settings for unlimited access.');
+  }
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Sarvam TTS failed (${response.status}): ${errorText}`);
@@ -69,16 +91,10 @@ export async function textToSpeech(
     throw new Error('No audio returned from Sarvam TTS');
   }
 
-  // Cache the result
   audioCache.set(cacheKey, audioBase64);
   return audioBase64;
 }
 
-/**
- * Transcribe speech audio using Sarvam STT.
- * Accepts a file URI (from expo-av recording).
- * Returns the transcribed text.
- */
 export async function speechToText(
   audioFileUri: string,
   options?: {
@@ -87,14 +103,8 @@ export async function speechToText(
   }
 ): Promise<{ transcript: string; language_code: string }> {
   const apiKey = await getSarvamApiKey();
-  if (!apiKey) {
-    throw new Error('Sarvam API key not configured. Please add it in Settings.');
-  }
 
-  // Read audio file and create form data
   const formData = new FormData();
-
-  // For React Native, we need to append the file as a blob
   formData.append('file', {
     uri: audioFileUri,
     type: 'audio/m4a',
@@ -103,14 +113,30 @@ export async function speechToText(
   formData.append('language_code', options?.language ?? 'hi-IN');
   formData.append('model', options?.model ?? 'saarika:v2.5');
 
-  const response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
-    method: 'POST',
-    headers: {
-      'api-subscription-key': apiKey,
-    },
-    body: formData,
-  });
+  let response: Response;
 
+  if (apiKey) {
+    response = await fetch(`${SARVAM_API_BASE}/speech-to-text`, {
+      method: 'POST',
+      headers: {
+        'api-subscription-key': apiKey,
+      },
+      body: formData,
+    });
+  } else {
+    const deviceId = await getDeviceId();
+    response = await fetch(`${PROXY_BASE}/stt`, {
+      method: 'POST',
+      headers: {
+        'X-Device-Id': deviceId,
+      },
+      body: formData,
+    });
+  }
+
+  if (response.status === 429) {
+    throw new Error('Daily limit reached. Add your own Sarvam AI key in Settings for unlimited access.');
+  }
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Sarvam STT failed (${response.status}): ${errorText}`);
@@ -123,7 +149,6 @@ export async function speechToText(
   };
 }
 
-/** Clear the in-memory audio cache */
 export function clearAudioCache(): void {
   audioCache.clear();
 }

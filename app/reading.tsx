@@ -13,6 +13,7 @@ import type { Shloka } from '../src/types/gita';
 import type { ThemeColors } from '../src/constants/theme';
 
 function friendlyAudioError(msg: string): string {
+  if (msg.includes('Daily limit')) return msg;
   if (msg.includes('API key')) return 'Sarvam API key not set. Add it in Settings.';
   if (msg.includes('network') || msg.includes('Network') || msg.includes('fetch'))
     return 'Network error — check your internet connection.';

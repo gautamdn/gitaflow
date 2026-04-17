@@ -204,7 +204,7 @@ export default function SettingsScreen() {
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <View style={styles.apiKeySection}>
             <Text style={[styles.apiKeyHint, { color: colors.textSecondary }]}>
-              Enter your Sarvam AI API key to enable audio chanting and pronunciation feedback. Get one at dashboard.sarvam.ai
+              Audio and pronunciation work out of the box (30 listens, 10 recordings per day). For unlimited access, add your own Sarvam AI key from dashboard.sarvam.ai
             </Text>
             <TextInput
               value={apiKey}
