@@ -35,7 +35,7 @@ export async function clearSarvamApiKey(): Promise<void> {
  * Generate speech audio from Sanskrit text using Sarvam TTS.
  *
  * If the user has a BYO Sarvam API key, calls Sarvam directly.
- * Otherwise, routes through the Chantr proxy (rate-limited).
+ * Otherwise, routes through the Gita Chant proxy (rate-limited).
  *
  * Returns a base64-encoded WAV audio string.
  */
@@ -113,7 +113,7 @@ export async function textToSpeech(
  * Transcribe speech audio using Sarvam STT.
  *
  * If the user has a BYO Sarvam API key, calls Sarvam directly.
- * Otherwise, routes through the Chantr proxy (rate-limited).
+ * Otherwise, routes through the Gita Chant proxy (rate-limited).
  *
  * Accepts a file URI (from expo-av recording).
  * Returns the transcribed text.

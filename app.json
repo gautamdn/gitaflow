@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Gita Chantr",
+    "name": "Gita Chant",
     "slug": "gitaflow",
     "version": "1.1.0",
     "orientation": "portrait",
@@ -41,7 +41,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Chantr needs microphone access for pronunciation practice."
+          "microphonePermission": "Gita Chant needs microphone access for pronunciation practice."
         }
       ],
       "expo-secure-store"

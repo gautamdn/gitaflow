@@ -1,4 +1,4 @@
-# Chantr
+# Gita Chant
 
 A self-paced Bhagavad Gita study app with structured daily readings, audio chanting, and AI-powered Sanskrit pronunciation feedback. Built for learners in Geeta Pariwar's LearnGeeta classes and anyone studying the Gita.
 

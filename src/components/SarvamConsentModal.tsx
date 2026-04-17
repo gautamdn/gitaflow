@@ -34,7 +34,7 @@ export function SarvamConsentModal() {
           </Text>
 
           <Text style={[styles.body, { color: colors.textPrimary }]}>
-            Chantr uses <Text style={styles.bold}>Sarvam AI</Text>, a third-party AI service based in India, to:
+            Gita Chant uses <Text style={styles.bold}>Sarvam AI</Text>, a third-party AI service based in India, to:
           </Text>
 
           <View style={[styles.card, { backgroundColor: colors.saffronPale }]}>
@@ -63,7 +63,7 @@ export function SarvamConsentModal() {
           </Text>
           <View style={[styles.card, { backgroundColor: colors.saffronPale }]}>
             <Text style={[styles.body, { color: colors.textPrimary, marginBottom: 0 }]}>
-              No name, no account information, no contacts, no location, no other personal data. Chantr does not require an account.
+              No name, no account information, no contacts, no location, no other personal data. Gita Chant does not require an account.
             </Text>
           </View>
 
@@ -72,7 +72,7 @@ export function SarvamConsentModal() {
           </Text>
           <View style={[styles.card, { backgroundColor: colors.saffronPale }]}>
             <Text style={[styles.body, { color: colors.textPrimary, marginBottom: 0 }]}>
-              Sarvam AI processes your request and returns a result. Chantr does not store your recordings, and Sarvam AI's policy is not to retain them after processing.
+              Sarvam AI processes your request and returns a result. Gita Chant does not store your recordings, and Sarvam AI's policy is not to retain them after processing.
             </Text>
           </View>
 
@@ -94,7 +94,7 @@ export function SarvamConsentModal() {
               accessibilityRole="link"
             >
               <Text style={[styles.link, { color: colors.saffron }]}>
-                Chantr Privacy Policy
+                Gita Chant Privacy Policy
               </Text>
             </Pressable>
           </View>
@@ -109,7 +109,7 @@ export function SarvamConsentModal() {
               pressed && { opacity: 0.85 },
             ]}
             accessibilityRole="button"
-            accessibilityLabel="Allow Chantr to send data to Sarvam AI"
+            accessibilityLabel="Allow Gita Chant to send data to Sarvam AI"
           >
             <Text style={styles.allowButtonText}>Allow</Text>
           </Pressable>
