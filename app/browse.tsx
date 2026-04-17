@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, RADII, CARD_SHADOW, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getAllChapters, getReadingsByChapter } from '../src/services/gitaData';
@@ -210,13 +210,9 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   chapterCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     marginBottom: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
     overflow: 'hidden',
   },
   chapterHeader: {
@@ -228,7 +224,7 @@ const styles = StyleSheet.create({
   chapterNumberBadge: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: RADII.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -254,7 +250,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.caption,
   },
   expandArrow: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.caption,
     marginLeft: SPACING.sm,
   },
   readingsList: {
@@ -281,7 +277,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   readingCheck: {
-    fontSize: 18,
+    fontSize: FONT_SIZES.bodyLarge,
     fontWeight: '600',
     marginLeft: SPACING.md,
   },

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react-native';
-import { SPACING } from '../constants/theme';
+import { SPACING, COLORS } from '../constants/theme';
 
 interface Props {
   /** When true, the banner is visible and the timer + pulse are running. */
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#D32F2F',
+    backgroundColor: COLORS.error,
     paddingVertical: SPACING.sm + 2,
     paddingHorizontal: SPACING.lg,
     gap: SPACING.sm,
@@ -76,16 +76,16 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
   },
   label: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   timer: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 15,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],

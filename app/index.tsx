@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, TOUCH_TARGET, RADII, CARD_SHADOW, COLORS, getColors } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getChapter, getTotalReadings } from '../src/services/gitaData';
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
     shadowColor: '#000',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.body,
   },
   beginButton: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     paddingVertical: SPACING.md + 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   beginButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: FONT_SIZES.bodyLarge,
     fontWeight: '700',
   },
@@ -312,15 +312,11 @@ const styles = StyleSheet.create({
   practiceButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: RADII.md,
     borderWidth: 1.5,
     padding: SPACING.lg,
     marginTop: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   practiceIcon: {
     fontSize: 28,
@@ -345,7 +341,7 @@ const styles = StyleSheet.create({
   navButton: {
     flex: 1,
     borderWidth: 2,
-    borderRadius: 16,
+    borderRadius: RADII.md,
     paddingVertical: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',

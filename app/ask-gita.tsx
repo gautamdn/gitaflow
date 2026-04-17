@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, RADII, CARD_SHADOW, COLORS, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getSuggestedTopics, findAdvice, getAdviceByTopicId } from '../src/services/gitaAdvice';
 import { textToSpeech } from '../src/services/sarvamAI';
@@ -88,7 +88,7 @@ function AudioChip({
       {isLoading ? (
         <ActivityIndicator size="small" color={colors.saffron} />
       ) : (
-        <Text style={{ color: colors.saffron, fontSize: 13 }}>
+        <Text style={{ color: colors.saffron, fontSize: FONT_SIZES.caption }}>
           {isPlaying ? '\u23F9 Stop' : '\u25B6 Listen'}
         </Text>
       )}
@@ -334,7 +334,7 @@ export default function AskGitaScreen() {
                 disabled={!query.trim() || isSearching}
               >
                 {isSearching ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={COLORS.white} />
                 ) : (
                   <Text style={styles.searchButtonText}>Find Guidance</Text>
                 )}
@@ -434,18 +434,18 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZES.subtitle,
     fontWeight: '700',
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.caption,
     marginTop: 2,
   },
   scrollContent: {
     padding: SPACING.lg,
   },
   inputCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     padding: SPACING.md,
     minHeight: 80,
   },
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   searchButton: {
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm + 2,
     minHeight: TOUCH_TARGET.minHeight - 8,
@@ -478,12 +478,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: FONT_SIZES.body,
     fontWeight: '700',
   },
   resetButton: {
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     borderWidth: 1,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm + 2,
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   explanationCard: {
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
   },
@@ -511,14 +511,10 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   shlokaCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   verseLabel: {
     fontWeight: '600',
@@ -535,7 +531,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs + 2,
-    borderRadius: 16,
+    borderRadius: RADII.md,
     borderWidth: 1,
     marginBottom: SPACING.md,
   },
@@ -561,7 +557,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
   },
   noMatchCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.xl,
     marginTop: SPACING.xl,
     alignItems: 'center',
@@ -582,7 +578,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   topicChip: {
-    borderRadius: 14,
+    borderRadius: RADII.sm,
     borderWidth: 1.5,
     padding: SPACING.md,
     marginBottom: SPACING.sm,

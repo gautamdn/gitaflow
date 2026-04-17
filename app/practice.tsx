@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, RADII, CARD_SHADOW, COLORS, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
@@ -346,7 +346,7 @@ export default function PracticeScreen() {
                 <Text
                   style={[
                     styles.shlokaNavText,
-                    { color: i === currentIndex ? '#FFFFFF' : colors.saffron },
+                    { color: i === currentIndex ? colors.white : colors.saffron },
                   ]}
                 >
                   {s.chapter}.{s.verse}
@@ -407,7 +407,7 @@ export default function PracticeScreen() {
               <Text
                 style={[
                   styles.speedButtonText,
-                  { color: pace === p ? '#FFFFFF' : colors.saffron },
+                  { color: pace === p ? colors.white : colors.saffron },
                 ]}
               >
                 {p}x
@@ -428,7 +428,7 @@ export default function PracticeScreen() {
           accessibilityLabel={isPlaying ? 'Stop listening' : isLoadingAudio ? 'Cancel loading' : 'Listen to shloka'}
         >
           {isLoadingAudio ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.actionButtonIcon}>
               {isPlaying ? '\u23F9' : '\u{1F50A}'}
@@ -446,7 +446,7 @@ export default function PracticeScreen() {
           style={({ pressed }) => [
             styles.actionButton,
             {
-              backgroundColor: isRecording ? '#D32F2F' : colors.surface,
+              backgroundColor: isRecording ? colors.error : colors.surface,
               borderWidth: isRecording ? 0 : 2,
               borderColor: colors.saffron,
             },
@@ -465,7 +465,7 @@ export default function PracticeScreen() {
           <Text
             style={[
               styles.actionButtonText,
-              { color: isRecording ? '#FFFFFF' : colors.saffron },
+              { color: isRecording ? colors.white : colors.saffron },
             ]}
           >
             {isProcessing
@@ -502,10 +502,10 @@ export default function PracticeScreen() {
                 {
                   borderColor:
                     result.score >= 80
-                      ? '#4CAF50'
+                      ? colors.success
                       : result.score >= 50
-                        ? '#FF9800'
-                        : '#D32F2F',
+                        ? colors.warning
+                        : colors.error,
                 },
               ]}
             >
@@ -515,10 +515,10 @@ export default function PracticeScreen() {
                   {
                     color:
                       result.score >= 80
-                        ? '#4CAF50'
+                        ? colors.success
                         : result.score >= 50
-                          ? '#FF9800'
-                          : '#D32F2F',
+                          ? colors.warning
+                          : colors.error,
                   },
                 ]}
               >
@@ -673,11 +673,11 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZES.subtitle,
     fontWeight: '700',
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.caption,
     marginTop: 2,
   },
   scrollView: {
@@ -696,22 +696,18 @@ const styles = StyleSheet.create({
   shlokaNavDot: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     borderWidth: 1.5,
   },
   shlokaNavText: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.caption,
     fontWeight: '600',
   },
   card: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   sanskritText: {
     textAlign: 'center',
@@ -739,20 +735,20 @@ const styles = StyleSheet.create({
   speedButton: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     borderWidth: 1.5,
     minWidth: 52,
     alignItems: 'center',
   },
   speedButtonText: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.small,
     fontWeight: '600',
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
+    borderRadius: RADII.md,
     paddingVertical: SPACING.md + 2,
     marginBottom: SPACING.md,
     minHeight: TOUCH_TARGET.minHeight,
@@ -762,7 +758,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   actionButtonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: FONT_SIZES.bodyLarge,
     fontWeight: '700',
   },
@@ -778,25 +774,21 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   errorCard: {
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     padding: SPACING.md,
     marginBottom: SPACING.md,
   },
   errorText: {
-    color: '#D32F2F',
+    color: COLORS.error,
     fontSize: FONT_SIZES.body,
     textAlign: 'center',
   },
   resultCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     alignItems: 'center',
     marginBottom: SPACING.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   scoreCircle: {
     width: 120,
@@ -808,11 +800,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   scoreNumber: {
-    fontSize: 32,
+    fontSize: FONT_SIZES.score,
     fontWeight: '700',
   },
   scoreLabel: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.caption,
     marginTop: 2,
   },
   feedbackTitle: {
@@ -838,7 +830,7 @@ const styles = StyleSheet.create({
   },
   tryAgainButton: {
     borderWidth: 2,
-    borderRadius: 16,
+    borderRadius: RADII.md,
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.xl,
     marginTop: SPACING.md,
@@ -860,12 +852,12 @@ const styles = StyleSheet.create({
   },
   navArrowButton: {
     borderWidth: 1.5,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm + 2,
   },
   navArrowText: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.small,
     fontWeight: '600',
   },
   navCounter: {

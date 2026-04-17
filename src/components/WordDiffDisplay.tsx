@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import { SPACING, FONT_SIZES } from '../constants/theme';
+import { SPACING, FONT_SIZES, RADII } from '../constants/theme';
 import type { WordComparison, WordStatus } from '../services/pronunciationScore';
 
 const STATUS_COLORS: Record<WordStatus, { bg: string; text: string }> = {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     alignItems: 'center',
     minWidth: 48,
   },

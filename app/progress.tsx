@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, RADII, CARD_SHADOW, COLORS, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getChapter, getTotalReadings } from '../src/services/gitaData';
@@ -358,14 +358,10 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   statIcon: {
     fontSize: 24,
@@ -380,7 +376,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   progressSection: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
   },
@@ -392,13 +388,13 @@ const styles = StyleSheet.create({
   progressBar: {
     width: '100%',
     height: 10,
-    borderRadius: 5,
+    borderRadius: RADII.sm,
     overflow: 'hidden',
     marginBottom: SPACING.sm,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 5,
+    borderRadius: RADII.sm,
   },
   progressSubtext: {
     fontSize: FONT_SIZES.caption,
@@ -414,14 +410,10 @@ const styles = StyleSheet.create({
 
   // Badge row
   badgesContainer: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     overflow: 'hidden',
     marginBottom: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   badgeRow: {
     flexDirection: 'row',
@@ -447,7 +439,7 @@ const styles = StyleSheet.create({
   badge: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: RADII.md,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -471,7 +463,7 @@ const styles = StyleSheet.create({
   milestoneIconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: RADII.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -493,13 +485,13 @@ const styles = StyleSheet.create({
   miniProgressBar: {
     width: '100%',
     height: 4,
-    borderRadius: 2,
+    borderRadius: 4,
     overflow: 'hidden',
     marginTop: SPACING.xs,
   },
   miniProgressFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 4,
   },
   milestonePercent: {
     fontSize: FONT_SIZES.caption,
@@ -511,13 +503,13 @@ const styles = StyleSheet.create({
   achievedBadge: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: RADII.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: SPACING.sm,
   },
   achievedCheck: {
-    color: '#4CAF50',
+    color: COLORS.success,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -526,14 +518,10 @@ const styles = StyleSheet.create({
   bestStreakCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   bestStreakIcon: {
     fontSize: 32,
@@ -553,7 +541,7 @@ const styles = StyleSheet.create({
 
   // Recent readings
   recentCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     overflow: 'hidden',
   },
   recentRow: {

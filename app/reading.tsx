@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
-import { SPACING, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
+import { SPACING, TOUCH_TARGET, FONT_SIZES, RADII, CARD_SHADOW, COLORS, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
@@ -122,7 +122,7 @@ function AudioButton({
         </Text>
       </Pressable>
       {error && (
-        <Text style={[styles.audioError, { color: '#D32F2F' }]} numberOfLines={2}>
+        <Text style={[styles.audioError, { color: colors.error }]} numberOfLines={2}>
           {error}
         </Text>
       )}
@@ -370,18 +370,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backArrow: {
-    fontSize: 24,
+    fontSize: FONT_SIZES.title,
   },
   headerText: {
     flex: 1,
     marginLeft: SPACING.sm,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZES.subtitle,
     fontWeight: '700',
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: FONT_SIZES.caption,
     marginTop: 2,
   },
   headerButtons: {
@@ -391,11 +391,11 @@ const styles = StyleSheet.create({
   practiceHeaderButton: {
     paddingHorizontal: SPACING.sm + 2,
     paddingVertical: SPACING.sm,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     borderWidth: 1.5,
   },
   practiceHeaderText: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.small,
     fontWeight: '600',
   },
   scrollView: {
@@ -405,14 +405,10 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   shlokaCard: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     padding: SPACING.lg,
     marginBottom: SPACING.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...CARD_SHADOW,
   },
   verseNumber: {
     fontWeight: '600',
@@ -433,19 +429,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.sm,
-    borderRadius: 20,
+    borderRadius: RADII.md,
     borderWidth: 1.5,
     gap: SPACING.sm,
   },
   audioButtonIcon: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.small,
   },
   audioButtonText: {
-    fontSize: 14,
+    fontSize: FONT_SIZES.small,
     fontWeight: '600',
   },
   audioError: {
-    fontSize: 12,
+    fontSize: FONT_SIZES.caption,
     marginTop: SPACING.xs,
     textAlign: 'center',
   },
@@ -465,7 +461,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   completeButton: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     paddingVertical: SPACING.md + 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -476,11 +472,11 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   completeButtonDone: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: COLORS.success,
   },
   completeButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: FONT_SIZES.bodyLarge,
     fontWeight: '700',
   },
   completeButtonTextDone: {

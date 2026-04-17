@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors, getScaledFontSizes } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, TOUCH_TARGET, RADII, CARD_SHADOW, COLORS, getColors, getScaledFontSizes } from '../src/constants/theme';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { useSettingsStore } from '../src/store/useSettingsStore';
 import { getDailyReading, getShlokasByIds, getChapter } from '../src/services/gitaData';
@@ -400,7 +400,7 @@ export default function MemorizeScreen() {
                 <Text
                   style={[
                     styles.shlokaNavText,
-                    { color: i === currentIndex ? '#FFFFFF' : colors.saffron },
+                    { color: i === currentIndex ? colors.white : colors.saffron },
                   ]}
                 >
                   {s.chapter}.{s.verse}
@@ -429,7 +429,7 @@ export default function MemorizeScreen() {
               <Text
                 style={[
                   styles.levelButtonText,
-                  { color: sessionLevel === level ? '#FFFFFF' : colors.saffron },
+                  { color: sessionLevel === level ? colors.white : colors.saffron },
                 ]}
               >
                 {LEVEL_LABELS[level]}
@@ -458,7 +458,7 @@ export default function MemorizeScreen() {
               <Text
                 style={[
                   styles.speedButtonText,
-                  { color: pace === p ? '#FFFFFF' : colors.saffron },
+                  { color: pace === p ? colors.white : colors.saffron },
                 ]}
               >
                 {p}x
@@ -479,7 +479,7 @@ export default function MemorizeScreen() {
           accessibilityLabel={isPlaying ? 'Stop listening' : isLoadingAudio ? 'Cancel loading' : 'Listen to shloka'}
         >
           {isLoadingAudio ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.white} />
           ) : (
             <Text style={styles.actionButtonIcon}>
               {isPlaying ? '\u23F9' : '\u{1F50A}'}
@@ -668,10 +668,10 @@ const styles = StyleSheet.create({
   // Header
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, borderBottomWidth: 1 },
   backButton: { width: TOUCH_TARGET.minWidth, height: TOUCH_TARGET.minHeight, alignItems: 'center', justifyContent: 'center' },
-  backArrow: { fontSize: 24 },
+  backArrow: { fontSize: FONT_SIZES.title },
   headerTextContainer: { flex: 1, marginLeft: SPACING.sm },
-  headerTitle: { fontSize: 20, fontWeight: '700' },
-  headerSubtitle: { fontSize: 13, marginTop: 2 },
+  headerTitle: { fontSize: FONT_SIZES.subtitle, fontWeight: '700' },
+  headerSubtitle: { fontSize: FONT_SIZES.caption, marginTop: 2 },
 
   // Scroll
   scrollView: { flex: 1 },
@@ -679,31 +679,31 @@ const styles = StyleSheet.create({
 
   // Shloka nav
   shlokaNav: { flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.lg, justifyContent: 'center', flexWrap: 'wrap' },
-  shlokaNavDot: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: 12, borderWidth: 1.5 },
-  shlokaNavText: { fontSize: 13, fontWeight: '600' },
+  shlokaNavDot: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: RADII.sm, borderWidth: 1.5 },
+  shlokaNavText: { fontSize: FONT_SIZES.caption, fontWeight: '600' },
 
   // Level selector
   levelRow: { flexDirection: 'row', justifyContent: 'center', gap: SPACING.xs, marginBottom: SPACING.lg, flexWrap: 'wrap' },
-  levelButton: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: 12, borderWidth: 1.5 },
-  levelButtonText: { fontSize: 13, fontWeight: '600' },
+  levelButton: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: RADII.sm, borderWidth: 1.5 },
+  levelButtonText: { fontSize: FONT_SIZES.caption, fontWeight: '600' },
 
   // Speed
   speedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: SPACING.sm, marginBottom: SPACING.lg },
   speedLabel: { fontSize: FONT_SIZES.body, fontWeight: '500', marginRight: SPACING.xs },
-  speedButton: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: 12, borderWidth: 1.5, minWidth: 52, alignItems: 'center' },
-  speedButtonText: { fontSize: 14, fontWeight: '600' },
+  speedButton: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: RADII.sm, borderWidth: 1.5, minWidth: 52, alignItems: 'center' },
+  speedButtonText: { fontSize: FONT_SIZES.small, fontWeight: '600' },
 
   // Action button (listen)
-  actionButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: 16, paddingVertical: SPACING.md + 2, marginBottom: SPACING.lg, minHeight: TOUCH_TARGET.minHeight, gap: SPACING.sm },
-  actionButtonIcon: { fontSize: 18 },
-  actionButtonText: { color: '#FFFFFF', fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
+  actionButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: RADII.md, paddingVertical: SPACING.md + 2, marginBottom: SPACING.lg, minHeight: TOUCH_TARGET.minHeight, gap: SPACING.sm },
+  actionButtonIcon: { fontSize: FONT_SIZES.bodyLarge },
+  actionButtonText: { color: COLORS.white, fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
 
   // Error
-  errorCard: { borderRadius: 12, padding: SPACING.md, marginBottom: SPACING.md },
-  errorText: { color: '#D32F2F', fontSize: FONT_SIZES.body, textAlign: 'center' },
+  errorCard: { borderRadius: RADII.sm, padding: SPACING.md, marginBottom: SPACING.md },
+  errorText: { color: COLORS.error, fontSize: FONT_SIZES.body, textAlign: 'center' },
 
   // Card
-  card: { borderRadius: 16, padding: SPACING.lg, marginBottom: SPACING.lg, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  card: { borderRadius: RADII.md, padding: SPACING.lg, marginBottom: SPACING.lg, ...CARD_SHADOW },
 
   // Token container (flex-wrap flow)
   tokenContainer: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' },
@@ -721,35 +721,35 @@ const styles = StyleSheet.create({
   // Level 5
   level5Line: { marginBottom: SPACING.sm },
   blankLine: { height: 28, borderRadius: 8 },
-  revealLineButton: { borderWidth: 2, borderRadius: 16, paddingVertical: SPACING.md, alignItems: 'center', marginTop: SPACING.md, minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
+  revealLineButton: { borderWidth: 2, borderRadius: RADII.md, paddingVertical: SPACING.md, alignItems: 'center', marginTop: SPACING.md, minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
   revealLineText: { fontSize: FONT_SIZES.body, fontWeight: '700' },
 
   // Transliteration
-  translitCard: { borderRadius: 16, padding: SPACING.lg, marginBottom: SPACING.lg, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  translitCard: { borderRadius: RADII.md, padding: SPACING.lg, marginBottom: SPACING.lg, ...CARD_SHADOW },
   translitText: { textAlign: 'center', fontStyle: 'italic' },
 
   // Check button
-  checkButton: { borderRadius: 16, paddingVertical: SPACING.md + 2, alignItems: 'center', marginBottom: SPACING.md, minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
-  checkButtonText: { color: '#FFFFFF', fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
+  checkButton: { borderRadius: RADII.md, paddingVertical: SPACING.md + 2, alignItems: 'center', marginBottom: SPACING.md, minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
+  checkButtonText: { color: COLORS.white, fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
 
   // Self-assess
   selfAssessRow: { flexDirection: 'row', gap: SPACING.md, marginBottom: SPACING.md },
-  selfAssessButton: { flex: 1, borderRadius: 16, paddingVertical: SPACING.md + 2, alignItems: 'center', minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
-  gotItButton: { backgroundColor: '#4CAF50' },
-  gotItText: { color: '#FFFFFF', fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
+  selfAssessButton: { flex: 1, borderRadius: RADII.md, paddingVertical: SPACING.md + 2, alignItems: 'center', minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
+  gotItButton: { backgroundColor: COLORS.success },
+  gotItText: { color: COLORS.white, fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
   notYetText: { fontSize: FONT_SIZES.bodyLarge, fontWeight: '700' },
 
   // Level up
-  levelUpCard: { borderRadius: 16, padding: SPACING.lg, marginBottom: SPACING.md, alignItems: 'center' },
+  levelUpCard: { borderRadius: RADII.md, padding: SPACING.lg, marginBottom: SPACING.md, alignItems: 'center' },
   levelUpTitle: { fontSize: FONT_SIZES.subtitle, fontWeight: '600', marginBottom: SPACING.md, textAlign: 'center' },
   levelUpRow: { flexDirection: 'row', gap: SPACING.md, width: '100%' },
-  levelUpButton: { flex: 1, borderRadius: 16, paddingVertical: SPACING.md, alignItems: 'center', minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
-  levelUpButtonText: { color: '#FFFFFF', fontSize: FONT_SIZES.body, fontWeight: '700' },
+  levelUpButton: { flex: 1, borderRadius: RADII.md, paddingVertical: SPACING.md, alignItems: 'center', minHeight: TOUCH_TARGET.minHeight, justifyContent: 'center' },
+  levelUpButtonText: { color: COLORS.white, fontSize: FONT_SIZES.body, fontWeight: '700' },
   keepPracticingText: { fontSize: FONT_SIZES.body, fontWeight: '700' },
 
   // Bottom nav
   bottomNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.lg, paddingVertical: SPACING.md, borderTopWidth: 1 },
-  navArrowButton: { borderWidth: 1.5, borderRadius: 12, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm + 2 },
-  navArrowText: { fontSize: 14, fontWeight: '600' },
+  navArrowButton: { borderWidth: 1.5, borderRadius: RADII.sm, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm + 2 },
+  navArrowText: { fontSize: FONT_SIZES.small, fontWeight: '600' },
   navCounter: { fontSize: FONT_SIZES.body, fontWeight: '500' },
 });
