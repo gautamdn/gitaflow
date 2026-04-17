@@ -6,6 +6,8 @@ interface Env {
 const SARVAM_BASE = 'https://api.sarvam.ai';
 const TTS_DAILY_LIMIT = 30;
 const STT_DAILY_LIMIT = 10;
+const GLOBAL_TTS_DAILY_LIMIT = 1000;
+const GLOBAL_STT_DAILY_LIMIT = 300;
 const COUNTER_TTL = 172800; // 48 hours in seconds
 
 function todayUTC(): string {
@@ -58,6 +60,16 @@ function getDeviceId(request: Request): string | null {
 }
 
 async function handleTTS(request: Request, env: Env): Promise<Response> {
+  // Global kill switch — protect against runaway costs
+  const { allowed: globalAllowed } = await checkAndIncrement(env.RATE_LIMITS, 'global_tts', 'ALL', GLOBAL_TTS_DAILY_LIMIT);
+  if (!globalAllowed) {
+    return jsonResponse({
+      error: 'service_limit_reached',
+      message: 'The audio service is temporarily unavailable. Please try again tomorrow, or add your own Sarvam AI key in Settings.',
+      resets_at: midnightUTCISO(),
+    }, 429);
+  }
+
   const deviceId = getDeviceId(request);
   if (!deviceId) {
     return jsonResponse({ error: 'missing_device_id', message: 'X-Device-Id header is required (UUID format).' }, 400);
@@ -97,6 +109,16 @@ async function handleTTS(request: Request, env: Env): Promise<Response> {
 }
 
 async function handleSTT(request: Request, env: Env): Promise<Response> {
+  // Global kill switch — protect against runaway costs
+  const { allowed: globalAllowed } = await checkAndIncrement(env.RATE_LIMITS, 'global_stt', 'ALL', GLOBAL_STT_DAILY_LIMIT);
+  if (!globalAllowed) {
+    return jsonResponse({
+      error: 'service_limit_reached',
+      message: 'The recording service is temporarily unavailable. Please try again tomorrow, or add your own Sarvam AI key in Settings.',
+      resets_at: midnightUTCISO(),
+    }, 429);
+  }
+
   const deviceId = getDeviceId(request);
   if (!deviceId) {
     return jsonResponse({ error: 'missing_device_id', message: 'X-Device-Id header is required (UUID format).' }, 400);
