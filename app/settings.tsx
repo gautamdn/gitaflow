@@ -259,7 +259,7 @@ export default function SettingsScreen() {
               </Text>
             </View>
             <Text style={[styles.apiKeyHint, { color: colors.textSecondary, marginTop: SPACING.sm, marginBottom: 0 }]}>
-              GitaFlow asks for your permission before sending any text or audio to Sarvam AI. The next time you tap Listen or Record, you will be asked again.
+              Chantr asks for your permission before sending any text or audio to Sarvam AI. The next time you tap Listen or Record, you will be asked again.
             </Text>
             {sarvamConsentGranted && (
               <Pressable

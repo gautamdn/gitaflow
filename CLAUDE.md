@@ -1,4 +1,4 @@
-# GitaFlow — Daily Bhagavad Gita Study with Pronunciation Training
+# Chantr — Daily Bhagavad Gita Study with Pronunciation Training
 
 ## Vision
 A self-paced Bhagavad Gita study app that combines structured daily readings with audio chanting, AI-powered Sanskrit pronunciation feedback, and memorization tools. Think "10 Minute Gita meets Duolingo." Designed as a companion app for learners in Geeta Pariwar's LearnGeeta classes.
@@ -228,7 +228,7 @@ LearnGeeta's book breaks each shloka into individual words with meanings (padacc
 
 ## App Store Info
 
-- **App Name:** GitaFlow
+- **App Name:** Chantr
 - **Subtitle:** Daily Gita Study & Chanting
 - **Bundle ID:** (set in Expo config)
 - **App Store Connect ID:** 6759271008

@@ -28,7 +28,7 @@ export default function HomeScreen() {
         <Text style={[styles.greeting, { color: colors.textSecondary }]}>
           {getGreeting()}
         </Text>
-        <Text style={[styles.appName, { color: colors.saffron }]}>GitaFlow</Text>
+        <Text style={[styles.appName, { color: colors.saffron }]}>Chantr</Text>
 
         {/* Today's Reading Card */}
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
