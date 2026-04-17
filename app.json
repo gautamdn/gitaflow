@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Chantr",
+    "name": "Gita Chantr",
     "slug": "gitaflow",
     "version": "1.1.0",
     "orientation": "portrait",
@@ -15,7 +15,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FF6F00"
+      "backgroundColor": "#C08B30"
     },
     "ios": {
       "bundleIdentifier": "com.gitaflow.app",
@@ -29,7 +29,7 @@
       "package": "com.gitaflow.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FF6F00"
+        "backgroundColor": "#C08B30"
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
