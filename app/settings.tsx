@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Switch, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { SPACING, FONT_SIZES, TOUCH_TARGET, getColors } from '../src/constants/theme';
+import { SPACING, FONT_SIZES, RADII, COLORS, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useSettingsStore, type FontSizeOption } from '../src/store/useSettingsStore';
 import { useProgressStore } from '../src/store/useProgressStore';
 import { getSarvamApiKey, setSarvamApiKey, clearSarvamApiKey } from '../src/services/sarvamAI';
@@ -73,8 +73,8 @@ function FontSizeSelector({
               style={[
                 styles.fontSizeButtonText,
                 {
-                  fontSize: opt.key === 'small' ? 14 : opt.key === 'large' ? 22 : 18,
-                  color: current === opt.key ? '#FFFFFF' : colors.saffron,
+                  fontSize: opt.key === 'small' ? FONT_SIZES.small : opt.key === 'large' ? 22 : FONT_SIZES.bodyLarge,
+                  color: current === opt.key ? colors.white : colors.saffron,
                 },
               ]}
             >
@@ -230,7 +230,7 @@ export default function SettingsScreen() {
               onPress={handleSaveApiKey}
               style={({ pressed }) => [
                 styles.apiKeySaveButton,
-                { backgroundColor: apiKeySaved ? '#4CAF50' : colors.saffron },
+                { backgroundColor: apiKeySaved ? colors.success : colors.saffron },
                 pressed && { opacity: 0.85 },
               ]}
               accessibilityRole="button"
@@ -253,7 +253,7 @@ export default function SettingsScreen() {
               <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>
                 Sarvam AI consent
               </Text>
-              <Text style={[styles.settingValue, { color: sarvamConsentGranted ? '#4CAF50' : colors.textMuted }]}>
+              <Text style={[styles.settingValue, { color: sarvamConsentGranted ? colors.success : colors.textMuted }]}>
                 {sarvamConsentGranted ? 'Granted' : 'Not granted'}
               </Text>
             </View>
@@ -265,7 +265,7 @@ export default function SettingsScreen() {
                 onPress={() => setSarvamConsent(false)}
                 style={({ pressed }) => [
                   styles.apiKeySaveButton,
-                  { backgroundColor: '#D32F2F', marginTop: SPACING.md },
+                  { backgroundColor: colors.error, marginTop: SPACING.md },
                   pressed && { opacity: 0.85 },
                 ]}
                 accessibilityRole="button"
@@ -312,7 +312,7 @@ export default function SettingsScreen() {
               accessibilityRole="button"
               accessibilityLabel="Reset all progress"
             >
-              <Text style={[styles.settingLabel, { color: '#D32F2F' }]}>
+              <Text style={[styles.settingLabel, { color: colors.error }]}>
                 Reset Progress
               </Text>
             </Pressable>
@@ -333,7 +333,7 @@ export default function SettingsScreen() {
                   </Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.resetButton, { backgroundColor: '#D32F2F' }]}
+                  style={[styles.resetButton, { backgroundColor: colors.error }]}
                   onPress={() => {
                     resetProgress();
                     setShowResetConfirm(false);
@@ -341,7 +341,7 @@ export default function SettingsScreen() {
                   accessibilityRole="button"
                   accessibilityLabel="Confirm reset progress"
                 >
-                  <Text style={[styles.resetButtonText, { color: '#FFFFFF' }]}>
+                  <Text style={[styles.resetButtonText, { color: colors.white }]}>
                     Reset
                   </Text>
                 </Pressable>
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backArrow: {
-    fontSize: 24,
+    fontSize: FONT_SIZES.title,
   },
   headerTitle: {
     fontSize: FONT_SIZES.subtitle,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.xs,
   },
   section: {
-    borderRadius: 16,
+    borderRadius: RADII.md,
     overflow: 'hidden',
     marginBottom: SPACING.md,
   },
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   fontSizeButton: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
@@ -441,21 +441,21 @@ const styles = StyleSheet.create({
   },
   apiKeyInput: {
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm + 2,
     fontSize: FONT_SIZES.body,
     marginBottom: SPACING.md,
   },
   apiKeySaveButton: {
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     paddingVertical: SPACING.sm + 2,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 44,
   },
   apiKeySaveText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: FONT_SIZES.body,
     fontWeight: '600',
   },
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: RADII.sm,
     paddingVertical: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
