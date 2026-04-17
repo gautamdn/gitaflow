@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Switch, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { SPACING, FONT_SIZES, RADII, COLORS, TOUCH_TARGET, getColors } from '../src/constants/theme';
 import { useSettingsStore, type FontSizeOption } from '../src/store/useSettingsStore';
 import { useProgressStore } from '../src/store/useProgressStore';
@@ -287,7 +288,7 @@ export default function SettingsScreen() {
               Version
             </Text>
             <Text style={[styles.settingValue, { color: colors.textMuted }]}>
-              1.0.0
+              {Constants.expoConfig?.version ?? '1.1.0'}
             </Text>
           </View>
           <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
