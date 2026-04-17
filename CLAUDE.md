@@ -8,8 +8,9 @@ A self-paced Bhagavad Gita study app that combines structured daily readings wit
 - Secondary: Anyone interested in learning Sanskrit chanting and studying the Gita
 
 ## Current State
-- **TestFlight:** Live (App Store Connect ID: 6759271008)
+- **App Store:** Approved (v1.0.2), v1.1.0 in review (App Store Connect ID: 6759271008)
 - **GitHub:** github.com/gautamdn/gitaflow
+- **Proxy:** Live at gitaflow-proxy.gautamfowl.workers.dev (Cloudflare Workers)
 - **Phases 1-3:** Complete (see below)
 - **Phase 4:** In progress (new features from LearnGeeta analysis)
 
@@ -17,44 +18,60 @@ A self-paced Bhagavad Gita study app that combines structured daily readings wit
 
 ## Tech Stack
 
-- **Framework:** React Native with Expo SDK
-- **Language:** TypeScript
-- **Navigation:** React Navigation (6 screens)
-- **State:** Zustand (useProgressStore, useSettingsStore)
-- **Audio:** Sarvam AI TTS (Sanskrit audio generation on-device)
+- **Framework:** React Native with Expo SDK 54
+- **Language:** TypeScript (strict)
+- **Navigation:** Expo Router (7 screens)
+- **State:** Zustand (useProgressStore, useSettingsStore, useSarvamConsentStore)
+- **Audio:** Sarvam AI TTS (Sanskrit audio generation via proxy or BYO key)
 - **Pronunciation:** Sarvam AI STT → word-level diff scoring (pronunciationScore.ts)
-- **Storage:** AsyncStorage for progress, SecureStore for API keys
+- **Backend Proxy:** Cloudflare Workers with KV rate limiting (proxy/)
+- **Storage:** AsyncStorage for progress, SecureStore for API keys + device ID
 - **Content:** Vedic Scriptures API (MIT licensed) → bundled gita-data.json (~5-10MB)
-- **Styling:** StyleSheet with theme.ts (saffron/orange palette)
+- **Styling:** StyleSheet with theme.ts (saffron/orange palette, RADII, CARD_SHADOW, semantic colors)
 
 ## Project Structure
 
 ```
 app/
-  _layout.tsx          — Root layout + navigation
+  _layout.tsx          — Root layout + navigation + SarvamConsentModal mount
   index.tsx            — Home screen
   reading.tsx          — Daily reading view
-  practice.tsx         — Listen & record chanting
+  practice.tsx         — Listen & record chanting + RecordingIndicator
   progress.tsx         — Streaks, milestones, stats
   browse.tsx           — All 18 chapters
-  settings.tsx         — Appearance, display, API key
+  settings.tsx         — Appearance, display, API key, privacy consent
+  memorize.tsx         — Progressive blanking memorization mode
+  ask-gita.tsx         — Topic-based Gita advice search
 src/
   services/
     gitaData.ts        — Load & query gita-data.json
-    sarvamAI.ts        — TTS and STT via Sarvam AI
+    sarvamAI.ts        — TTS/STT via proxy (default) or direct Sarvam (BYO key)
     pronunciationScore.ts — Word-level diff scoring
   store/
     useProgressStore.ts — Reading progress, streaks, completions
-    useSettingsStore.ts — Dark mode, font size, display toggles
+    useSettingsStore.ts — Dark mode, font size, display toggles, consent flag
+    useSarvamConsentStore.ts — Transient modal state for consent flow
+  components/
+    SarvamConsentModal.tsx — In-app disclosure + consent gate (Apple 5.1.1)
+    RecordingIndicator.tsx — Persistent red banner during recording (Apple 2.5.14)
+    WordDiffDisplay.tsx    — Pronunciation result word-by-word diff chips
   constants/
-    theme.ts           — Colors, spacing, typography
+    theme.ts           — Colors, spacing, fonts, radii, shadows (semantic tokens)
   types/
     gita.ts            — TypeScript interfaces
   utils/
+    sarvamConsent.ts   — ensureSarvamConsent() gate helper
     greeting.ts        — Time-based greeting
+proxy/
+  src/index.ts         — Cloudflare Worker: TTS/STT proxy with rate limiting
+  wrangler.toml        — Worker config + KV binding
 assets/
   data/
     gita-data.json     — All 700 shlokas (bundled, offline-first)
+docs/
+  superpowers/specs/   — Design specs
+  superpowers/plans/   — Implementation plans
+  app-review-replies/  — Archived App Review correspondence
 ```
 
 ## Data Model
