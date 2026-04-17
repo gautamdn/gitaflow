@@ -1,8 +1,8 @@
 export const COLORS = {
-  saffron: '#FF6F00',
-  saffronLight: '#FFA040',
-  saffronPale: '#FFF3E0',
-  background: '#FFFBF5',
+  saffron: '#C08B30',
+  saffronLight: '#D4A03C',
+  saffronPale: '#FBF5E6',
+  background: '#FDFAF3',
   surface: '#FFFFFF',
   white: '#FFFFFF',
   textPrimary: '#1A1A1A',
@@ -16,7 +16,7 @@ export const COLORS = {
 
 export const DARK_COLORS = {
   ...COLORS,
-  saffronPale: '#2A1A00',
+  saffronPale: '#1F1A0E',
   background: '#121212',
   surface: '#1E1E1E',
   textPrimary: '#F5F5F5',
