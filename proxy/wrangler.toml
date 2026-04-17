@@ -1,0 +1,7 @@
+name = "gitaflow-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMITS"
+id = "608d2058635a42669efa6ae3afbb7f34"
