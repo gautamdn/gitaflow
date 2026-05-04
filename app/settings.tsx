@@ -94,12 +94,14 @@ export default function SettingsScreen() {
     darkMode,
     fontSize,
     showSanskrit,
+    showSanskritKannada,
     showTransliteration,
     showTranslation,
     sarvamConsentGranted,
     toggleDarkMode,
     setFontSize,
     toggleShowSanskrit,
+    toggleShowSanskritKannada,
     toggleShowTransliteration,
     toggleShowTranslation,
     setSarvamConsent,
@@ -182,6 +184,12 @@ export default function SettingsScreen() {
             label="Sanskrit (Devanagari)"
             value={showSanskrit}
             onToggle={toggleShowSanskrit}
+            colors={colors}
+          />
+          <SettingRow
+            label="Sanskrit (Kannada Script)"
+            value={showSanskritKannada}
+            onToggle={toggleShowSanskritKannada}
             colors={colors}
           />
           <SettingRow
