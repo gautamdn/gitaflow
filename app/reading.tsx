@@ -135,6 +135,7 @@ function ShlokaCard({
   colors,
   fonts,
   showSanskrit,
+  showSanskritKannada,
   showTransliteration,
   showTranslation,
 }: {
@@ -142,11 +143,12 @@ function ShlokaCard({
   colors: ThemeColors;
   fonts: ReturnType<typeof getScaledFontSizes>;
   showSanskrit: boolean;
+  showSanskritKannada: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
 }) {
   const needsDivider =
-    (showSanskrit || showTransliteration) && showTranslation;
+    (showSanskrit || showSanskritKannada || showTransliteration) && showTranslation;
 
   return (
     <View style={[styles.shlokaCard, { backgroundColor: colors.surface }]}>
@@ -166,6 +168,21 @@ function ShlokaCard({
           ]}
         >
           {shloka.sanskrit}
+        </Text>
+      )}
+
+      {showSanskritKannada && (
+        <Text
+          style={[
+            styles.sanskritText,
+            {
+              color: colors.sanskritText,
+              fontSize: fonts.sanskrit,
+              lineHeight: fonts.sanskrit * 1.6,
+            },
+          ]}
+        >
+          {shloka.sanskrit_kannada}
         </Text>
       )}
 
@@ -213,7 +230,7 @@ export default function ReadingScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ day?: string }>();
   const { current_day, completed_readings, markDayComplete } = useProgressStore();
-  const { darkMode, fontSize, showSanskrit, showTransliteration, showTranslation } =
+  const { darkMode, fontSize, showSanskrit, showSanskritKannada, showTransliteration, showTranslation } =
     useSettingsStore();
 
   const colors = getColors(darkMode);
@@ -308,6 +325,7 @@ export default function ReadingScreen() {
             colors={colors}
             fonts={fonts}
             showSanskrit={showSanskrit}
+            showSanskritKannada={showSanskritKannada}
             showTransliteration={showTransliteration}
             showTranslation={showTranslation}
           />
