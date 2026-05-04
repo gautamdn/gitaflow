@@ -1,14 +1,16 @@
 {
   "name": "gitaflow",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "ios": "expo start --ios",
     "android": "expo start --android",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:gita-data": "tsx scripts/add-kannada-script.ts"
   },
   "dependencies": {
+    "@indic-transliteration/sanscript": "^1.3.3",
     "@react-native-async-storage/async-storage": "2.2.0",
     "babel-preset-expo": "~54.0.10",
     "expo": "~54.0.33",
@@ -34,6 +36,7 @@
     "@babel/core": "^7.25.0",
     "@types/react": "~19.1.0",
     "sharp": "^0.34.5",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2"
   },
   "private": true
