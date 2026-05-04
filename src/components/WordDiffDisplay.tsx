@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
+import Sanscript from '@indic-transliteration/sanscript';
 import { SPACING, FONT_SIZES, RADII } from '../constants/theme';
 import type { WordComparison, WordStatus } from '../services/pronunciationScore';
 
@@ -27,6 +28,8 @@ interface WordDiffDisplayProps {
   playingWord?: string | null;
   /** Map from normalized Sanskrit word to its transliteration */
   transliterationMap?: Record<string, string>;
+  /** Script in which to display each word's text. Defaults to 'devanagari'. */
+  displayScript?: 'devanagari' | 'kannada';
 }
 
 export function WordDiffDisplay({
@@ -36,11 +39,14 @@ export function WordDiffDisplay({
   onWordPress,
   playingWord,
   transliterationMap,
+  displayScript = 'devanagari',
 }: WordDiffDisplayProps) {
   const palette = darkMode ? DARK_STATUS_COLORS : STATUS_COLORS;
   const mainWords = wordComparisons.filter(wc => wc.status !== 'extra');
   const extraWords = wordComparisons.filter(wc => wc.status === 'extra');
   const hasWeakWords = mainWords.some(wc => wc.status !== 'correct');
+  const renderWord = (text: string): string =>
+    displayScript === 'kannada' ? Sanscript.t(text, 'devanagari', 'kannada') : text;
 
   return (
     <View style={styles.container}>
@@ -60,7 +66,7 @@ export function WordDiffDisplay({
             <>
               <View style={styles.chipHeader}>
                 <Text style={[styles.expectedWord, { color: colors.text }]}>
-                  {wc.expected}
+                  {renderWord(wc.expected)}
                 </Text>
                 {isTappable && (
                   isPlaying ? (
@@ -79,7 +85,7 @@ export function WordDiffDisplay({
               )}
               {showActual && (
                 <Text style={[styles.actualWord, { color: textMutedColor }]}>
-                  {wc.status === 'missing' ? '(skipped)' : wc.actual}
+                  {wc.status === 'missing' ? '(skipped)' : renderWord(wc.actual)}
                 </Text>
               )}
             </>
@@ -120,7 +126,7 @@ export function WordDiffDisplay({
             Extra words heard:
           </Text>
           <Text style={[styles.extraWords, { color: palette.extra.text }]}>
-            {extraWords.map(wc => wc.actual).join(', ')}
+            {extraWords.map(wc => renderWord(wc.actual)).join(', ')}
           </Text>
         </View>
       )}
