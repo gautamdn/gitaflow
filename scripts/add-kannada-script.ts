@@ -11,7 +11,6 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-// @ts-expect-error — package ships untyped, we only need .t()
 import Sanscript from '@indic-transliteration/sanscript';
 
 const DATA_PATH = resolve(__dirname, '..', 'assets', 'data', 'gita-data.json');
