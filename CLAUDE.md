@@ -80,13 +80,15 @@ docs/
 Chapter (18 total)
   ├── id: number
   ├── title_en: string
-  ├── title_sa: string (Sanskrit)
+  ├── title_sa: string (Sanskrit, Devanagari)
+  ├── title_kn: string (Sanskrit, Kannada lipi — derived at build time)
   ├── summary: string
   └── shlokas: Shloka[]
 
 Shloka (700 total)
   ├── id: string (e.g., "BG1.1")
   ├── sanskrit: string (Devanagari)
+  ├── sanskrit_kannada: string (Kannada lipi, derived at build time)
   ├── transliteration: string (IAST)
   ├── translations: { author: string, text: string }[]  // 4 English, 2 Hindi
   ├── word_by_word: { word: string, meaning: string }[] // TODO: Phase 4
@@ -116,7 +118,7 @@ UserProgress
 3. **Practice** — Speed control (0.5x/0.75x/1x), Listen button, Record Your Chanting, pronunciation score with word-level diff, Prev/Next navigation
 4. **Progress** — Day streak, completed count, progress %, journey bar (X of 239), milestones (First Step, 7/30/100-day streaks, Complete Journey)
 5. **Browse** — All 18 chapters with verse counts + completion status, expandable to individual shlokas
-6. **Settings** — Dark mode, font size (S/M/L), display toggles (Sanskrit, transliteration, English), Sarvam AI API key input
+6. **Settings** — Dark mode, font size (S/M/L), display toggles (Sanskrit Devanagari, Sanskrit Kannada Script, transliteration, English), Sarvam AI API key input
 7. **Memorize** — *(NEW - Phase 4)* Progressive blanking memorization mode
 
 ## Design Direction
