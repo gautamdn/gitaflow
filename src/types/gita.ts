@@ -13,6 +13,7 @@ export interface Chapter {
   chapter_number: number;
   verses_count: number;
   name_sanskrit: string;
+  name_kannada: string;
   name_transliteration: string | null;
   name_english: string | null;
   meaning_en: string | null;
@@ -26,6 +27,7 @@ export interface Shloka {
   chapter: number;
   verse: number;
   sanskrit: string;
+  sanskrit_kannada: string;
   transliteration: string;
   translations: {
     sivananda: string | null;
