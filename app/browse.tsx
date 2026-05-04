@@ -53,6 +53,7 @@ function ChapterCard({
   readings,
   completedReadings,
   onReadingPress,
+  showSanskritKannada,
   colors,
 }: {
   chapter: Chapter;
@@ -61,6 +62,7 @@ function ChapterCard({
   readings: DailyReading[];
   completedReadings: number[];
   onReadingPress: (day: number) => void;
+  showSanskritKannada: boolean;
   colors: ThemeColors;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -88,6 +90,11 @@ function ChapterCard({
           {chapter.meaning_en && (
             <Text style={[styles.chapterMeaning, { color: colors.textSecondary }]}>
               {chapter.meaning_en}
+            </Text>
+          )}
+          {showSanskritKannada && (
+            <Text style={[styles.chapterMeaning, { color: colors.textSecondary }]}>
+              {chapter.name_kannada}
             </Text>
           )}
           <Text style={[styles.chapterMeta, { color: colors.textMuted }]}>
@@ -120,7 +127,7 @@ function ChapterCard({
 export default function BrowseScreen() {
   const router = useRouter();
   const { completed_readings } = useProgressStore();
-  const { darkMode } = useSettingsStore();
+  const { darkMode, showSanskritKannada } = useSettingsStore();
   const colors = getColors(darkMode);
   const chapters = getAllChapters();
 
@@ -168,6 +175,7 @@ export default function BrowseScreen() {
               readings={readings}
               completedReadings={completed_readings}
               onReadingPress={handleReadingPress}
+              showSanskritKannada={showSanskritKannada}
               colors={colors}
             />
           );
