@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
+import Sanscript from '@indic-transliteration/sanscript';
 import {
   View,
   Text,
@@ -40,7 +41,7 @@ export default function MemorizeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ day?: string }>();
   const { current_day, getMemorizationLevel, updateMemorizationLevel } = useProgressStore();
-  const { darkMode, fontSize } = useSettingsStore();
+  const { darkMode, fontSize, showSanskritKannada } = useSettingsStore();
 
   const colors = getColors(darkMode);
   const fonts = getScaledFontSizes(fontSize);
@@ -95,6 +96,12 @@ export default function MemorizeScreen() {
     if (msg.includes('TTS failed')) return 'Audio generation failed. Please try again.';
     return msg || 'Something went wrong. Please try again.';
   }
+
+  const toKannada = useCallback(
+    (text: string): string =>
+      showSanskritKannada ? Sanscript.t(text, 'devanagari', 'kannada') : text,
+    [showSanskritKannada]
+  );
 
   const resetState = useCallback(() => {
     setRevealedIndices(new Set());
@@ -243,7 +250,7 @@ export default function MemorizeScreen() {
               { color: colors.sanskritText, fontSize: fonts.sanskrit, lineHeight: fonts.sanskrit * 1.6 },
             ]}
           >
-            {token.text}
+            {toKannada(token.text)}
           </Text>
           {translit && (
             <Text style={[styles.wordTranslit, { color: colors.textMuted, fontSize: fonts.caption }]}>
@@ -265,7 +272,7 @@ export default function MemorizeScreen() {
           accessibilityLabel="Reveal word"
         >
           <Text style={[styles.hintText, { color: colors.saffron, fontSize: fonts.sanskrit }]}>
-            {firstLetterHint(token.text)}
+            {toKannada(firstLetterHint(token.text))}
           </Text>
         </Pressable>
       );
