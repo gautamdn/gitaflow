@@ -28,7 +28,7 @@ export default function PracticeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ day?: string }>();
   const { current_day, addPronunciationScore, getBestScore } = useProgressStore();
-  const { darkMode, fontSize } = useSettingsStore();
+  const { darkMode, fontSize, showSanskritKannada } = useSettingsStore();
 
   const colors = getColors(darkMode);
   const fonts = getScaledFontSizes(fontSize);
@@ -368,7 +368,7 @@ export default function PracticeScreen() {
               },
             ]}
           >
-            {shloka.sanskrit}
+            {showSanskritKannada ? shloka.sanskrit_kannada : shloka.sanskrit}
           </Text>
 
           <View style={[styles.divider, { backgroundColor: colors.saffronPale }]} />
@@ -549,6 +549,7 @@ export default function PracticeScreen() {
                 onWordPress={handleWordPress}
                 playingWord={playingWord}
                 transliterationMap={translitMap}
+                displayScript={showSanskritKannada ? 'kannada' : 'devanagari'}
               />
             )}
 
